@@ -1,0 +1,32 @@
+Load ajax translation via ajax.
+html
+<select .... data-tr_url="url_for_retrieve_translation">
+</select>
+
+coffee script examples
+without ajax request and custom callback function 
+    $('select#lang-chooser-mail,select#mail-type').language_chooser {
+      sendRequest: false,
+      changed: () ->
+        non_ajax_mail_tr()
+    }
+
+get translation of fields via ajax + putting extra data to ajax request
+
+  $('select#lang-chooser-mail,select#mail-type').language_chooser {
+    extraData: () ->
+      {
+        'mail_type': $('select#mail-type').val(),
+        'lang': $('select#lang-chooser-mail').val()
+      }
+
+    success: (data, form) ->
+      $('textarea[name="body"]', form).val ''
+      $('input[name="subject"]', form).val ''
+      if ! data
+        return
+      if data.body
+        $('textarea[name="body"]', form).val data.body
+      if data.subject
+        $('input[name="subject"]', form).val data.subject
+  }
