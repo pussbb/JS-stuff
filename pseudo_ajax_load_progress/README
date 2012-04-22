@@ -1,0 +1,6 @@
+simple script that imitate loading progress in progress 
+based on twitter bootstrap (css, html markup)
+using 
+$('div.adding-form').pseudoAjaxLoadingProgress()
+
+
