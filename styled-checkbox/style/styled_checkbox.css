@@ -1,0 +1,15 @@
+
+.styled-checkbox {
+    display: block;
+    position: relative;
+    background: url(./checkbox.png) no-repeat 0 1px transparent;
+    width: 16px;
+    cursor: pointer;
+    float: left;
+    margin: 0 5px;
+}
+
+.styled-checkbox-checked {
+    background-position: 0 -18px;
+    width: 16px;
+}
