@@ -13,41 +13,74 @@ class Calendar extends Backbone.View
   @VIEW_WEEK = 2
   @VIEW_MONTH = 3
 
+  template: calendarTemplate
+
   options: {
     viewType: Calendar.VIEW_WEEK
     dayView: null
     weekView: null
     monthView: null
-    dayCollection: null
+    daysCollectionBaseURL: null
+    dayEventsCollectionBaseURL: null
     days: []
+    weekStart: 0
   }
 
   initialize: (el, options)->
     @$el = el
     if _.isObject options
       @options = _.extend @options, options
-    if not @options.dayCollection
-      @options.dayCollection = new CalendarDaysCollection @options.days
+
+    if @options.daysCollectionBaseURL
+      CalendarDaysCollection.baseURL = @options.daysCollectionBaseURL
+
+    if @options.dayEventsCollectionBaseURL
+      CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
+
+    @options.daysCollection = new CalendarDaysCollection @options.days
+
     if not @options.dayView
       @options.dayView = new CalendarDayView
     if not @options.weekView
       @options.weekView = new CalendarWeekView
     if not @options.monthView
       @options.monthView = new CalendarMonthView
+
+    @render()
     @refresh()
 
-  clear: ->
-    @$el.html ''
+  render: ()->
+    @$el.html @template()
+    #@$el.addClass 'table-responsive'
+    @
 
-  refresh: ->
+  clear: ->
+    $('tbody', @$el).html ''
+    @
+
+  refresh: (date)->
+    @clear()
     switch @options.viewType
-      when Calendar.VIEW_DAY then @_render_day()
-      when Calendar.VIEW_WEEK then @_render_week()
-      when Calendar.VIEW_MONTH then @_render_month()
+      when Calendar.VIEW_DAY then @_render_day date
+      when Calendar.VIEW_WEEK then @_render_week date
+      when Calendar.VIEW_MONTH then @_render_month date
       else throw CalendarException 'Not supported view type', 34
     @
 
-  _render_month: ->
+  _render_month: (date)->
+    now = moment(date).hours(12)
+    startDay = moment(now).date(-1)
+    endDate = moment(startDay).week(startDay.week() + 5).endOf 'week'
+    i = 0
+    $tbody = $('tbody', @$el)
+    $('th.title', @$el).prop 'colspan', 4
+    while startDay < endDate
+      if i % 7 is 0
+        tr = $('<tr>')
+        $tbody.append tr
+      tr.append "<td>#{startDay.format()}</td>"
+      startDay.add('d', 1)
+      i++
     @
 
   _render_day: ->
@@ -88,7 +121,12 @@ $ ->
     result
 
 
-  vv = $('div.calendar').Calendar {'viewType': 3454}
+  vv = $('div.calendar').Calendar {
+      'viewType': Calendar.VIEW_MONTH
+      'daysCollectionBaseURL': 'ddsfds'
+    }
   console.log vv
   vv.Calendar 'hello', 'Hi'
   console.log vv.Calendar 'options'
+
+ # day.day( day.day() < this.settings.weekStart ? this.settings.weekStart-7 : this.settings.weekStart);

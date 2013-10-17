@@ -7,11 +7,20 @@
     <script src="../assets/bootstrap-3.0.0/js/bootstrap.min.js"></script>
     <script src="../assets/backbone/underscore-min.js"></script>
     <script src="../assets/backbone/backbone-min.js"></script>
+    <script src="../assets/momentjs/moment-with-langs.min.js"></script>
     <script src="./calendar.js"></script>
     <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet">
+    <style>
+        th {
+            text-align: center;
+        }
+        th.prev,
+        th.next {
+            width: 50px;
+        }
+    </style>
   </head>
   <body>
-
       <div class="container">
             <div class="page-header">
               <h1>Inline Calendar</h1>
@@ -19,6 +28,5 @@
             <div class="calendar">
             </div>
       </div>
-
   </body>
 </html>
