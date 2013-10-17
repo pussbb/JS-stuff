@@ -9,28 +9,19 @@ calendarTemplate =  _.template '
             </button>
         </div>
         <div class="content">
-            Calendar
+            <span class="title">
+            </span>
 
             <div class="btn-group pull-right">
-              <button type="button" class="btn btn-danger">
-                  <span class="glyphicon glyphicon-cog"></span>
+              <button type="button" class="btn btn-default view-month">
+                  Month View
               </button>
-              <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
+              <button type="button" class="btn btn-default view-week">
+                  Week View
               </button>
-              <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a class="view-month" href="#">Month View</a>
-                </li>
-                <li>
-                    <a class="view-week" href="#">Week View</a>
-                </li>
-                <li>
-                    <a class="view-day" href="#">Day View</a>
-                </li>
-                <li class="divider"></li>
-                <li><a href="#">Comming soon</a></li>
-              </ul>
+              <button type="button" class="btn btn-default view-day">
+                  Day View
+              </button>
             </div>
 
         </div>
