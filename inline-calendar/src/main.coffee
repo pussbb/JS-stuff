@@ -1,7 +1,5 @@
 
-CalendarException = (message, code = 10 ) ->
-  @message = message
-  @code = code
+CalendarException = (@message, @code = 10 ) ->
   @name = "CalendarException"
   @toString = ()=> return "[#{@code}] (#{@name}) - #{@message}"
   @
@@ -14,6 +12,12 @@ class Calendar extends Backbone.View
   @VIEW_MONTH = 3
 
   template: calendarTemplate
+
+  events: {
+    "click .header .content a.view-month": '_render_month'
+    "click .header .content a.view-week": '_render_week'
+    "click .header .content a.view-day": '_render_day'
+  }
 
   options: {
     viewType: Calendar.VIEW_WEEK
@@ -40,13 +44,18 @@ class Calendar extends Backbone.View
     @options.daysCollection = new CalendarDaysCollection @options.days
 
     if not @options.dayView
-      @options.dayView = new CalendarDayView
+      @options.dayView = new CalendarDayView {}
     if not @options.weekView
       @options.weekView = new CalendarWeekView
     if not @options.monthView
       @options.monthView = new CalendarMonthView
 
     @render()
+
+    @container = $('div.calendar-container', @$el)
+    for i in ['dayView', 'weekView', 'monthView']
+      @options[i].$el = @container
+
     @refresh()
 
   render: ()->
@@ -55,11 +64,10 @@ class Calendar extends Backbone.View
     @
 
   clear: ->
-    $('tbody', @$el).html ''
+    @container.html ''
     @
 
   refresh: (date)->
-    @clear()
     switch @options.viewType
       when Calendar.VIEW_DAY then @_render_day date
       when Calendar.VIEW_WEEK then @_render_week date
@@ -68,29 +76,23 @@ class Calendar extends Backbone.View
     @
 
   _render_month: (date)->
-    now = moment(date).hours(12)
-    startDay = moment(now).date(-1)
-    endDate = moment(startDay).week(startDay.week() + 5).endOf 'week'
-    i = 0
-    $tbody = $('tbody', @$el)
-    $('th.title', @$el).prop 'colspan', 4
-    while startDay < endDate
-      if i % 7 is 0
-        tr = $('<tr>')
-        $tbody.append tr
-      tr.append "<td>#{startDay.format()}</td>"
-      startDay.add('d', 1)
-      i++
+    @clear()
+    @options.viewType = Calendar.VIEW_MONTH
+    @options.monthView.refresh date
     @
 
-  _render_day: ->
+  _render_day: (date)->
+    @clear()
+    @options.viewType = Calendar.VIEW_DAY
+    @options.dayView.refresh date
     @
 
-  _render_week: ->
+  _render_week: (date)->
+    @clear()
+    @options.viewType = Calendar.VIEW_WEEK
+    @options.weekView.refresh date
     @
 
-  hello: (msg)->
-      console.log msg
 
   option: (name, value)->
     if not value
@@ -122,7 +124,7 @@ $ ->
 
 
   vv = $('div.calendar').Calendar {
-      'viewType': Calendar.VIEW_MONTH
+      'viewType': Calendar.VIEW_WEEK
       'daysCollectionBaseURL': 'ddsfds'
     }
   console.log vv
