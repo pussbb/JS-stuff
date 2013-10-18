@@ -14,7 +14,9 @@ class Calendar extends Backbone.View
   template: calendarTemplate
 
   events: {
-    'click .header .content button[class*="view-"]': '_change_view_event'
+    'click .header .content button[class*="view-"]': '_change_view_event_handler'
+    'click .header .prev button': '_previuos_event_handler'
+    'click .header .next button': '_next_event_handler'
   }
 
   options: {
@@ -22,24 +24,26 @@ class Calendar extends Backbone.View
     dayView: null
     weekView: null
     monthView: null
-    daysCollectionBaseURL: null
     dayEventsCollectionBaseURL: null
-    days: []
-    weekStart: 0
+    dayEventsCollection: null
   }
 
   initialize: (el, options)->
     @$el = el
+    @moment =  moment().hours(12)
+
     if _.isObject options
       @options = _.extend @options, options
-
-    if @options.daysCollectionBaseURL
-      CalendarDaysCollection.baseURL = @options.daysCollectionBaseURL
 
     if @options.dayEventsCollectionBaseURL
       CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
 
-    @options.daysCollection = new CalendarDaysCollection @options.days
+    if _.isObject(@options.dayEventsCollection) and \
+        @options.dayEventsCollection instanceof CalendarDayEventsCollection
+      @collection = @options.dayEventsCollection
+    else
+      data = _.isArray @options.dayEventsCollection ? @options.dayEventsCollection | []
+      @collection = @options.dayEventsCollection = new CalendarDayEventsCollection data
 
     if not @options.dayView
       @options.dayView = new CalendarDayView {}
@@ -68,16 +72,23 @@ class Calendar extends Backbone.View
 
   refresh: (date)->
     @clear()
+
+    if date
+      @moment = moment(date).hours(12)
+
+    if not @moment.isValid()
+      throw CalendarException "Invalid date", 69
+
     btnClassPrefix = null
     switch @options.viewType
       when Calendar.VIEW_DAY
-        @_render_day date
+        @_render_day()
         btnClassPrefix = "day"
       when Calendar.VIEW_WEEK
-        @_render_week date
+        @_render_week()
         btnClassPrefix = "week"
       when Calendar.VIEW_MONTH
-        @_render_month date
+        @_render_month()
         btnClassPrefix = "month"
       else throw CalendarException 'Not supported view type', 34
 
@@ -92,7 +103,7 @@ class Calendar extends Backbone.View
     @options.viewType = type
     @refresh()
 
-  _change_view_event: (e)->
+  _change_view_event_handler: (e)->
     $btn = $(e.target)
     type = null
     if $btn.hasClass 'view-day'
@@ -103,22 +114,35 @@ class Calendar extends Backbone.View
       type = Calendar.VIEW_MONTH
     @changeViewTo type
 
-  _render_month: (date)->
-    now = moment(date).hours(12)
-    @title.html now.format('MMMM YYYY')
-    @options.monthView.refresh now
+  _previuos_event_handler: ->
+    switch @options.viewType
+      when Calendar.VIEW_DAY then @moment.set('d', @moment.day()-1)
+      when Calendar.VIEW_WEEK then @moment.set('d', @moment.day()-7)
+      when Calendar.VIEW_MONTH then @moment.set('month', @moment.month()-1)
+      else throw CalendarException 'Not supported view type', 34
+    @refresh()
+
+  _next_event_handler: ->
+    switch @options.viewType
+      when Calendar.VIEW_DAY then @moment.add 'd', 1
+      when Calendar.VIEW_WEEK then @moment.add 'w', 1
+      when Calendar.VIEW_MONTH then @moment.add 'm', 1
+      else throw CalendarException 'Not supported view type', 34
+    @refresh()
+
+  _render_month: ->
+    @title.html @moment.format('MMMM YYYY')
+    @options.monthView.refresh @moment
     @
 
-  _render_day: (date)->
-    now = moment(date).hours(12)
-    @title.html now.format('DD MMMM YYYY')
-    @options.dayView.refresh now
+  _render_day: ->
+    @title.html @moment.format('DD MMMM YYYY')
+    @options.dayView.refresh @moment
     @
 
-  _render_week: (date)->
-    now = moment(date).hours(12)
-    @title.html now.format('MMMM gggg')
-    @options.weekView.refresh now
+  _render_week: ->
+    @title.html @moment.format('MMMM gggg')
+    @options.weekView.refresh @moment
     @
 
   option: (name, value)->
@@ -155,8 +179,8 @@ $ ->
 
   vv = $('div.calendar').Calendar {
       'viewType': Calendar.VIEW_WEEK
-      'daysCollectionBaseURL': 'ddsfds'
     }
+
 #   console.log vv
 #   vv.Calendar 'hello', 'Hi'
 #   console.log vv.Calendar 'options'
