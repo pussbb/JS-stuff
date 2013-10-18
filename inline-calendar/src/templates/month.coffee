@@ -14,11 +14,12 @@ monthTemplate = _.template '
   </tbody>
   <tfoot>
       <% i = 0; %>
+      <% month = now.month() %>
       <% while (startDay < endDate) { %>
           <% if (i % 7 === 0) { %>
               <tr>
           <% } %>
-                  <td class="calendar-day" data-day="<%= startDay %>">
+                  <td class="calendar-day <% if(month !== startDay.month()){%> grey <%}%>" data-day="<%= startDay %>">
                       <span class="day">
                         <a href="#">
                             <%= startDay.format("DD") %>

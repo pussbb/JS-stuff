@@ -40,7 +40,7 @@ class CalendarView extends Backbone.View
     if @options.dayEventsCollectionBaseURL
       CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
 
-    if _.isObject(@options.dayEventsCollection) and \
+    if _.isObject(@options.dayEventsCollection) and
         @options.dayEventsCollection instanceof CalendarDayEventsCollection
       @collection = @options.dayEventsCollection
     else
