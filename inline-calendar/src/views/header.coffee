@@ -3,11 +3,14 @@
 class CalendarHeaderView extends AbstractCalendarView
 
   template: calendarHeaderTemplate
+  changeMonthYearTemplate: changeMonthYear
+
   events: {
     'click .content button[class*="view-"]': '_change_view_event_handler'
     'click .prev button': '_previuos_event_handler'
     'click .next button': '_next_event_handler'
     'dblclick .content .changable': '_header_title_dblclick_event_handler'
+    'submit form[name="change_month_year"]': '_change_month_year_event_handler'
   }
 
   initialize: (@$el, @parent=@)-> @render()
@@ -53,3 +56,10 @@ class CalendarHeaderView extends AbstractCalendarView
 
   _header_title_dblclick_event_handler: ->
     @title.html @changeMonthYearTemplate({'now': @parent.moment})
+
+  _change_month_year_event_handler: (e)->
+    e.preventDefault()
+    $form = $(e.target)
+    for i in ['month', 'year']
+      @parent.moment.set(i, parseInt($("select[name='#{i}']", $form).val(),10))
+    @parent.refresh()

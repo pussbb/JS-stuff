@@ -45,7 +45,7 @@
 
   changeMonthYear = _.template('\
 <div class="btn-group">\
-<form class="form-inline" role="form">\
+<form class="form-inline" name="change_month_year" role="form">\
   <div class="form-group">\
     <select name="month" class="form-control">\
         <% _.each(moment.months(), function(name, key){ %>\
@@ -400,11 +400,14 @@
 
     CalendarHeaderView.prototype.template = calendarHeaderTemplate;
 
+    CalendarHeaderView.prototype.changeMonthYearTemplate = changeMonthYear;
+
     CalendarHeaderView.prototype.events = {
       'click .content button[class*="view-"]': '_change_view_event_handler',
       'click .prev button': '_previuos_event_handler',
       'click .next button': '_next_event_handler',
-      'dblclick .content .changable': '_header_title_dblclick_event_handler'
+      'dblclick .content .changable': '_header_title_dblclick_event_handler',
+      'submit form[name="change_month_year"]': '_change_month_year_event_handler'
     };
 
     CalendarHeaderView.prototype.initialize = function($el, parent) {
@@ -487,6 +490,18 @@
       return this.title.html(this.changeMonthYearTemplate({
         'now': this.parent.moment
       }));
+    };
+
+    CalendarHeaderView.prototype._change_month_year_event_handler = function(e) {
+      var $form, i, _i, _len, _ref;
+      e.preventDefault();
+      $form = $(e.target);
+      _ref = ['month', 'year'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        i = _ref[_i];
+        this.parent.moment.set(i, parseInt($("select[name='" + i + "']", $form).val(), 10));
+      }
+      return this.parent.refresh();
     };
 
     return CalendarHeaderView;

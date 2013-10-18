@@ -40,7 +40,7 @@ calendarHeaderTemplate = _.template '
 
 changeMonthYear = _.template '
 <div class="btn-group">
-<form class="form-inline" role="form">
+<form class="form-inline" name="change_month_year" role="form">
   <div class="form-group">
     <select name="month" class="form-control">
         <% _.each(moment.months(), function(name, key){ %>
