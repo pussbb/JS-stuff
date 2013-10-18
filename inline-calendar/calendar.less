@@ -19,7 +19,7 @@
             margin: -5px 0 0 0;
         }
 
-        > div {
+        div {
             display: inline-block;
         }
 
@@ -28,6 +28,10 @@
             text-align: center;
             .btn-group {
                 margin: -6px 0 0 0;
+            }
+            form.form-inline {
+                margin: 5px;
+                padding: 0;
             }
         }
     }
@@ -38,5 +42,26 @@
             height: 400px;
         }
 
+    }
+
+    .calendar-day {
+        min-height: 80px;
+        height: 80px;
+        span.day {
+            font-size: small;
+
+            a {
+              color: black;
+            }
+
+            a:hover,
+            a:focus {
+                font-weight: 900;
+            }
+        }
+    }
+
+    table.table-fixed {
+        table-layout: fixed;
     }
 }

@@ -4,23 +4,26 @@ CalendarException = (@message, @code = 10 ) ->
   @toString = ()=> return "[#{@code}] (#{@name}) - #{@message}"
   @
 
+class AbstractCalendarView extends Backbone.View
+  parent: null
+  initialize: (@$el, @parent=@)-> @
 
-class Calendar extends Backbone.View
+class CalendarView extends Backbone.View
 
   @VIEW_DAY = 1
   @VIEW_WEEK = 2
   @VIEW_MONTH = 3
 
+  @availableViews: [
+    CalendarView.VIEW_DAY,
+    CalendarView.VIEW_WEEK,
+    CalendarView.VIEW_MONTH
+  ]
+
   template: calendarTemplate
 
-  events: {
-    'click .header .content button[class*="view-"]': '_change_view_event_handler'
-    'click .header .prev button': '_previuos_event_handler'
-    'click .header .next button': '_next_event_handler'
-  }
-
   options: {
-    viewType: Calendar.VIEW_WEEK
+    viewType: CalendarView.VIEW_WEEK
     dayView: null
     weekView: null
     monthView: null
@@ -44,25 +47,25 @@ class Calendar extends Backbone.View
       data = _.isArray @options.dayEventsCollection ? @options.dayEventsCollection | []
       @collection = @options.dayEventsCollection = new CalendarDayEventsCollection data
 
-    if not @options.dayView
-      @options.dayView = new CalendarDayView {}
-    if not @options.weekView
-      @options.weekView = new CalendarWeekView
-    if not @options.monthView
-      @options.monthView = new CalendarMonthView
-
     @render()
-
     @container = $('div.calendar-container', @$el)
-    for i in ['dayView', 'weekView', 'monthView']
-      @options[i].$el = @container
-
-    @title = $('.header .content .title', @$el)
+    views = {
+      'dayView': CalendarDayView
+      'weekView': CalendarWeekView
+      'monthView': CalendarMonthView
+    }
+    for option, klass of views
+      if not @options[option]
+        @options[option] = new klass @container, @
+      else
+        @options[option].$el = @container
+        @options[option].parent = @
 
     @refresh()
 
   render: ()->
     @$el.html @template()
+    @header = new CalendarHeaderView $('.header', @$el), @
     @
 
   clear: ->
@@ -77,71 +80,19 @@ class Calendar extends Backbone.View
       if not @moment.isValid()
         throw CalendarException "Invalid date", 69
 
-    btnClassPrefix = null
     switch @options.viewType
-      when Calendar.VIEW_DAY
-        @_render_day()
-        btnClassPrefix = "day"
-      when Calendar.VIEW_WEEK
-        @_render_week()
-        btnClassPrefix = "week"
-      when Calendar.VIEW_MONTH
-        @_render_month()
-        btnClassPrefix = "month"
+      when CalendarView.VIEW_DAY then @options.dayView.refresh @moment
+      when CalendarView.VIEW_WEEK then @options.weekView.refresh @moment
+      when CalendarView.VIEW_MONTH then @options.monthView.refresh @moment
       else throw CalendarException 'Not supported view type', 34
-
-    $('.header .content button[class*="view-"]', @$el).removeClass 'btn-primary'
-    $(".header .content button.view-#{btnClassPrefix}", @$el).addClass 'btn-primary'
-
+    @header.activateButton @options.viewType
     @
 
-  changeViewTo: (type=Calendar.VIEW_MONTH)->
-    if type not  in [Calendar.VIEW_DAY, Calendar.VIEW_WEEK, Calendar.VIEW_MONTH]
+  changeViewTo: (type=CalendarView.VIEW_MONTH, date)->
+    if type not in CalendarView.availableViews
       throw CalendarException 'Not supported view type', 34
     @options.viewType = type
-    @refresh()
-
-  _change_view_event_handler: (e)->
-    $btn = $(e.target)
-    type = null
-    if $btn.hasClass 'view-day'
-      type = Calendar.VIEW_DAY
-    if $btn.hasClass 'view-week'
-      type = Calendar.VIEW_WEEK
-    if $btn.hasClass 'view-month'
-      type = Calendar.VIEW_MONTH
-    @changeViewTo type
-
-  _previuos_event_handler: ->
-    switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.subtract('days', 2)
-      when Calendar.VIEW_WEEK then @moment.subtract('w', 1)
-      when Calendar.VIEW_MONTH then @moment.subtract('M', 1)
-      else throw CalendarException 'Not supported view type', 34
-    @refresh()
-
-  _next_event_handler: ->
-    switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.startOf('day').add 'h', 12
-      when Calendar.VIEW_WEEK then @moment.add 'w', 1
-      when Calendar.VIEW_MONTH then @moment.add 'M', 1
-      else throw CalendarException 'Not supported view type', 34
-    @refresh()
-
-  _render_month: ->
-    @title.html @moment.format('MMMM YYYY')
-    @options.monthView.refresh @moment
-    @
-
-  _render_day: ->
-    @title.html @moment.format('DD MMMM YYYY')
-    @options.dayView.refresh @moment
-    @
-
-  _render_week: ->
-    @title.html @moment.format('MMMM gggg')
-    @options.weekView.refresh @moment
-    @
+    @refresh date
 
   option: (name, value)->
     if not value
@@ -160,7 +111,7 @@ $ ->
       $el = $(@)
       obj = $el.data 'Calendar'
       if ! obj
-        obj = new Calendar $el, options
+        obj = new CalendarView $el, options
         $el.data 'Calendar', obj
         return
       return if jQuery.type(options) is not 'string'
@@ -176,7 +127,7 @@ $ ->
 
 
   vv = $('div.calendar').Calendar {
-      'viewType': Calendar.VIEW_MONTH
+      'viewType': CalendarView.VIEW_MONTH
     }
 
 

@@ -1,6 +1,6 @@
 
 monthTemplate = _.template '
-<table class="table table-bordered">
+<table class="table table-bordered table-fixed">
   <thead>
     <tr>
         <% _.each(moment.weekdays(), function (name) {%>
@@ -18,8 +18,12 @@ monthTemplate = _.template '
           <% if (i % 7 === 0) { %>
               <tr>
           <% } %>
-                  <td class="calendar-day">
-                      <%= startDay.format("DD-MM-YYYY") %>
+                  <td class="calendar-day" data-day="<%= startDay %>">
+                      <span class="day">
+                        <a href="#">
+                            <%= startDay.format("DD") %>
+                        </a>
+                      </span>
                   </td>
           <% startDay.add("d", 1); %>
           <% i++; %>
