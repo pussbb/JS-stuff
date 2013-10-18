@@ -170,9 +170,9 @@
       dayEventsCollection: null
     };
 
-    Calendar.prototype.initialize = function(el, options) {
+    Calendar.prototype.initialize = function($el, options) {
       var data, i, _i, _len, _ref, _ref1;
-      this.$el = el;
+      this.$el = $el;
       this.moment = moment().hours(12);
       if (_.isObject(options)) {
         this.options = _.extend(this.options, options);
@@ -221,9 +221,9 @@
       this.clear();
       if (date) {
         this.moment = moment(date).hours(12);
-      }
-      if (!this.moment.isValid()) {
-        throw CalendarException("Invalid date", 69);
+        if (!this.moment.isValid()) {
+          throw CalendarException("Invalid date", 69);
+        }
       }
       btnClassPrefix = null;
       switch (this.options.viewType) {
@@ -277,10 +277,10 @@
     Calendar.prototype._previuos_event_handler = function() {
       switch (this.options.viewType) {
         case Calendar.VIEW_DAY:
-          this.moment.set('d', this.moment.day() - 1);
+          this.moment.set('date', this.moment.day() - 1);
           break;
         case Calendar.VIEW_WEEK:
-          this.moment.set('d', this.moment.day() - 7);
+          this.moment.set('date', this.moment.day() - 7);
           break;
         case Calendar.VIEW_MONTH:
           this.moment.set('month', this.moment.month() - 1);
@@ -294,13 +294,13 @@
     Calendar.prototype._next_event_handler = function() {
       switch (this.options.viewType) {
         case Calendar.VIEW_DAY:
-          this.moment.add('d', 1);
+          this.moment.add('h', 12);
           break;
         case Calendar.VIEW_WEEK:
           this.moment.add('w', 1);
           break;
         case Calendar.VIEW_MONTH:
-          this.moment.add('m', 1);
+          this.moment.add('M', 1);
           break;
         default:
           throw CalendarException('Not supported view type', 34);
@@ -376,7 +376,7 @@
       return result;
     };
     return vv = $('div.calendar').Calendar({
-      'viewType': Calendar.VIEW_WEEK
+      'viewType': Calendar.VIEW_MONTH
     });
   });
 
@@ -449,7 +449,7 @@
 
     CalendarMonthView.prototype.refresh = function(now) {
       var endDate, startDay;
-      startDay = moment(now).date(-1);
+      startDay = moment(now).startOf('month').startOf('week');
       endDate = moment(startDay).week(startDay.week() + 5).endOf('week');
       return this.$el.html(this.template({
         'startDay': startDay,

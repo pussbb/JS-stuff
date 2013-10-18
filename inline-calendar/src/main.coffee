@@ -28,8 +28,7 @@ class Calendar extends Backbone.View
     dayEventsCollection: null
   }
 
-  initialize: (el, options)->
-    @$el = el
+  initialize: (@$el, options)->
     @moment =  moment().hours(12)
 
     if _.isObject options
@@ -75,9 +74,8 @@ class Calendar extends Backbone.View
 
     if date
       @moment = moment(date).hours(12)
-
-    if not @moment.isValid()
-      throw CalendarException "Invalid date", 69
+      if not @moment.isValid()
+        throw CalendarException "Invalid date", 69
 
     btnClassPrefix = null
     switch @options.viewType
@@ -116,17 +114,17 @@ class Calendar extends Backbone.View
 
   _previuos_event_handler: ->
     switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.set('d', @moment.day()-1)
-      when Calendar.VIEW_WEEK then @moment.set('d', @moment.day()-7)
+      when Calendar.VIEW_DAY then @moment.set('date', @moment.day()-1)
+      when Calendar.VIEW_WEEK then @moment.set('date', @moment.day()-7)
       when Calendar.VIEW_MONTH then @moment.set('month', @moment.month()-1)
       else throw CalendarException 'Not supported view type', 34
     @refresh()
 
   _next_event_handler: ->
     switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.add 'd', 1
+      when Calendar.VIEW_DAY then @moment.add 'h', 12
       when Calendar.VIEW_WEEK then @moment.add 'w', 1
-      when Calendar.VIEW_MONTH then @moment.add 'm', 1
+      when Calendar.VIEW_MONTH then @moment.add 'M', 1
       else throw CalendarException 'Not supported view type', 34
     @refresh()
 
@@ -178,10 +176,7 @@ $ ->
 
 
   vv = $('div.calendar').Calendar {
-      'viewType': Calendar.VIEW_WEEK
+      'viewType': Calendar.VIEW_MONTH
     }
 
-#   console.log vv
-#   vv.Calendar 'hello', 'Hi'
-#   console.log vv.Calendar 'options'
 
