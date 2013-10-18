@@ -277,13 +277,13 @@
     Calendar.prototype._previuos_event_handler = function() {
       switch (this.options.viewType) {
         case Calendar.VIEW_DAY:
-          this.moment.set('date', this.moment.day() - 1);
+          this.moment.subtract('days', 2);
           break;
         case Calendar.VIEW_WEEK:
-          this.moment.set('date', this.moment.day() - 7);
+          this.moment.subtract('w', 1);
           break;
         case Calendar.VIEW_MONTH:
-          this.moment.set('month', this.moment.month() - 1);
+          this.moment.subtract('M', 1);
           break;
         default:
           throw CalendarException('Not supported view type', 34);
@@ -294,7 +294,7 @@
     Calendar.prototype._next_event_handler = function() {
       switch (this.options.viewType) {
         case Calendar.VIEW_DAY:
-          this.moment.add('h', 12);
+          this.moment.startOf('day').add('h', 12);
           break;
         case Calendar.VIEW_WEEK:
           this.moment.add('w', 1);

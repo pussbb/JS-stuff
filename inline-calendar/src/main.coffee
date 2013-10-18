@@ -114,15 +114,15 @@ class Calendar extends Backbone.View
 
   _previuos_event_handler: ->
     switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.set('date', @moment.day()-1)
-      when Calendar.VIEW_WEEK then @moment.set('date', @moment.day()-7)
-      when Calendar.VIEW_MONTH then @moment.set('month', @moment.month()-1)
+      when Calendar.VIEW_DAY then @moment.subtract('days', 2)
+      when Calendar.VIEW_WEEK then @moment.subtract('w', 1)
+      when Calendar.VIEW_MONTH then @moment.subtract('M', 1)
       else throw CalendarException 'Not supported view type', 34
     @refresh()
 
   _next_event_handler: ->
     switch @options.viewType
-      when Calendar.VIEW_DAY then @moment.add 'h', 12
+      when Calendar.VIEW_DAY then @moment.startOf('day').add 'h', 12
       when Calendar.VIEW_WEEK then @moment.add 'w', 1
       when Calendar.VIEW_MONTH then @moment.add 'M', 1
       else throw CalendarException 'Not supported view type', 34
