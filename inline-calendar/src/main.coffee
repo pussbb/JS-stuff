@@ -8,7 +8,16 @@ CalendarException = (@message, @code = 10 ) ->
 
 class AbstractCalendarView extends Backbone.View
   parent: null
-  initialize: (@$el, @parent=@)-> @
+  initialize: (options)->
+    @parent = options['parent'] || @
+
+  notify: (event)->
+    args = Array.prototype.slice.call(arguments, 1)
+    #for internal handlers
+    @parent.trigger event, args
+    #global
+    @parent.$el.trigger event, args
+    @
 
 class CalendarView extends Backbone.View
 
@@ -19,26 +28,28 @@ class CalendarView extends Backbone.View
   @availableViews: [
     CalendarView.VIEW_DAY,
     CalendarView.VIEW_WEEK,
-    CalendarView.VIEW_MONTH
+    CalendarView.VIEW_MONTH,
   ]
 
   template: calendarTemplate
 
-  options: {
-    viewType: CalendarView.VIEW_WEEK
-    dayView: null
-    weekView: null
-    monthView: null
-    dayEventsCollectionBaseURL: null
-    dayEventsCollection: null
-    lang: 'ru'
-  }
+  defaultOptions: ()->
+    {
+      viewType: CalendarView.VIEW_MONTH
+      miniMode: false
+      dayView: null
+      weekView: null
+      monthView: null
+      dayEventsCollectionBaseURL: null
+      dayEventsCollection: null
+      lang: 'ru'
+    }
 
-  initialize: (@$el, options)->
-
-
+  initialize: (options)->
+    @options = @defaultOptions()
     if _.isObject options
       @options = _.extend @options, options
+
 
     @moment = moment().lang(@options.lang).hours(12)
     if @options.dayEventsCollectionBaseURL
@@ -58,9 +69,11 @@ class CalendarView extends Backbone.View
       'weekView': CalendarWeekView
       'monthView': CalendarMonthView
     }
+
     for option, klass of views
       if not @options[option]
-        @options[option] = new klass @container, @
+        parent = @
+        @options[option] = new klass {'el': @container, 'parent': parent}
       else
         @options[option].$el = @container
         @options[option].parent = @
@@ -69,7 +82,9 @@ class CalendarView extends Backbone.View
 
   render: ()->
     @$el.html @template()
-    @header = new CalendarHeaderView $('.header', @$el), @
+    parent = @
+    @header = new CalendarHeaderView {'el': $('.header', @$el), 'parent': parent}
+    @header.render()
     @
 
   clear: ->
@@ -88,13 +103,20 @@ class CalendarView extends Backbone.View
       when CalendarView.VIEW_DAY then @options.dayView.refresh @moment
       when CalendarView.VIEW_WEEK then @options.weekView.refresh @moment
       when CalendarView.VIEW_MONTH then @options.monthView.refresh @moment
-      else throw CalendarException 'Not supported view type', 34
+      else
+        throw CalendarException 'Not supported view type', 34
+        return
     @header.activateButton @options.viewType
     @
 
   changeViewTo: (type=CalendarView.VIEW_MONTH, date)->
     if type not in CalendarView.availableViews
       throw CalendarException 'Not supported view type', 34
+      return
+
+    if @options.miniMode and type isnt CalendarView.VIEW_MONTH
+      throw CalendarException 'You cann\'t set another view type except VIEW_MONTH', 35
+      return
     @options.viewType = type
     @refresh date
 
@@ -119,10 +141,10 @@ $ ->
       $el = $(@)
       obj = $el.data 'Calendar'
       if ! obj
-        obj = new CalendarView $el, options
+        obj = new CalendarView _.extend({el: $el}, options)
         $el.data 'Calendar', obj
-        return
-      return if jQuery.type(options) is not 'string'
+        return @
+      return @ if jQuery.type(options) isnt 'string'
       if not jQuery.isFunction obj[options]
         result_ = obj[options]
       else
@@ -132,11 +154,6 @@ $ ->
     return $res if not result.length
     result = result[0] if result.length is 1
     result
-
-
-  vv = $('div.calendar').Calendar {
-      'viewType': CalendarView.VIEW_MONTH
-    }
 
 
 

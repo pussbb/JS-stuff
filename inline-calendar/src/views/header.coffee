@@ -3,20 +3,22 @@
 class CalendarHeaderView extends AbstractCalendarView
 
   template: calendarHeaderTemplate
+  templateMini: calendarHeaderMiniTemplate
   changeMonthYearTemplate: changeMonthYear
 
   events: {
     'click .content button[class*="view-"]': '_change_view_event_handler'
-    'click .prev button': '_previuos_event_handler'
-    'click .next button': '_next_event_handler'
+    'click button.prev': '_previuos_event_handler'
+    'click button.next': '_next_event_handler'
     'dblclick .content .changable': '_header_title_dblclick_event_handler'
     'submit form[name="change_month_year"]': '_change_month_year_event_handler'
   }
 
-  initialize: (@$el, @parent=@)-> @render()
-
   render: ()->
-    @$el.html @template()
+    if @parent.options.miniMode
+      @$el.html @templateMini()
+    else
+      @$el.html @template()
     @title = $('.content .title', @$el)
     @
 
@@ -26,10 +28,12 @@ class CalendarHeaderView extends AbstractCalendarView
 
   setTitle: (title, changable=false)->
     @title.html title
-    if changable
+    if changable and not @parent.options.miniMode
       @title.addClass 'changable'
     else
       @title.removeClass 'changable'
+
+  setMiniMode: ->
 
   _change_view_event_handler: (e)->
     $btn = $(e.target)

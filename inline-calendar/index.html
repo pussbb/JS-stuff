@@ -12,6 +12,7 @@
     <script src="../assets/momentjs/moment-with-langs.min.js"></script>
 
     <script src="./calendar.js"></script>
+    <script src="./demo.js"></script>
     <link href="../assets/bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet/less" type="text/css" href="calendar.less" />
     <script src="../assets/less/less-1.4.2.min.js"></script>
@@ -22,8 +23,40 @@
             <div class="page-header">
               <h1>Inline Calendar</h1>
             </div>
-            <div class="calendar">
+            <form class="form-inline" name="actions-demo" role="form">
+                <div class="form-group">
+                  <label for="langs" class="col-lg-2 control-label">Langs</label>
+                  <select name="langs" class="form-control">
+                      <option value="en">English</option>
+                      <option value="ru">Russian</option>
+                      <option value="uk">Ukraine</option>
+                      <option value="zh-cn">chinese</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="viewType" class="col-lg-2 control-label">ViewMode</label>
+                  <select name="viewType" class="form-control">
+                      <option value="3">Month</option>
+                      <option value="2">Week</option>
+                      <option value="1">Day</option>
+                  </select>
+                </div>
+            </form>
+            <br>
+            <hr>
+            <div class="row">
+                <div class="col-xs-6 col-md-4">
+                    Mini Clandar
+                    <div class="mini-calendar">
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-8">
+                    Full Calendar
+                    <div class="calendar">
+                    </div>
+                </div>
             </div>
+
       </div>
   </body>
 </html>

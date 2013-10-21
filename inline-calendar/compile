@@ -1,3 +1,4 @@
 #!/bin/bash
 
-coffee -wc -j ./calendar.js ./src/templates/*.coffee src/main.coffee ./src/views/*.coffee ./src/models/*.coffee
+coffee -wc -j ./calendar.js ./src/templates/*.coffee src/main.coffee ./src/views/*.coffee ./src/models/*.coffee &
+coffee -wc ./demo.coffee

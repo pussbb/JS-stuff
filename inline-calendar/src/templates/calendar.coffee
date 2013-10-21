@@ -11,7 +11,7 @@ calendarTemplate =  _.template '
 
 calendarHeaderTemplate = _.template '
 <div class="prev">
-    <button type="button" class="btn btn-default">
+    <button type="button" class="btn  prev btn-default">
         <span class="glyphicon glyphicon-arrow-left"></span>
     </button>
 </div>
@@ -32,11 +32,26 @@ calendarHeaderTemplate = _.template '
 
 </div>
 <div class="next pull-right">
-    <button type="button" class="btn btn-default">
+    <button type="button" class="btn next btn-default">
         <span class="glyphicon glyphicon-arrow-right"></span>
     </button>
 </div>
 '
+
+calendarHeaderMiniTemplate = _.template '
+<div class="content mini">
+    <div class="title"></div>
+</div>
+<div class="pull-right">
+    <button type="button" class="btn prev btn-default">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+    </button>
+    <button type="button" class="btn next btn-default">
+        <span class="glyphicon glyphicon-arrow-right"></span>
+    </button>
+</div>
+'
+
 
 changeMonthYear = _.template '
 <div class="btn-group">

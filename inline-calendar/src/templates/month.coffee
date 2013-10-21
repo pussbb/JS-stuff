@@ -52,10 +52,52 @@ _monthTemplate = '
               </tr>
           <% } %>
       <% } %>
+  </tfoot>
+</table>
+'
 
+_monthTemplateMini = '
+<table class="table table-bordered table-fixed">
+  <thead>
+    <tr>
+        <% startOfWeek = moment(startDay).startOf("week") %>
+        <% endOfWeek = moment(startDay).endOf("week") %>
+        <% while(startOfWeek<=endOfWeek) { %>
+            <th>
+              <%= startOfWeek.format("dd") %>
+              <% startOfWeek.add("d",1) %>
+            </th>
+        <% } %>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+  <tfoot>
+      <% i = 0; %>
+      <% while (startDay < endDate) { %>
+          <% if (i % 7 === 0) { %>
+              <tr>
+          <% } %>
+                  <% dateInfo = highlightDay(startDay, now) %>
+                  <td class="day <%= dateInfo[0] %>" data-day="<%= startDay %>">
+                      <span class="day">
+                        <a href="#">
+                            <%= startDay.format("DD") %>
+                        </a>
+                      </span>
+                  </td>
+          <% startDay.add("d", 1); %>
+          <% i++; %>
+          <% if (i % 7 === 0) { %>
+              </tr>
+          <% } %>
+      <% } %>
   </tfoot>
 </table>
 '
 
 monthTemplate = (data)->
   _.template _monthTemplate,_.extend(data, {highlightDay:highlightDay})
+
+monthTemplateMini = (data)->
+  _.template _monthTemplateMini, _.extend(data, {highlightDay:highlightDay})
