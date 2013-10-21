@@ -51,7 +51,7 @@
             font-size: small;
 
             a {
-              color: black;
+              color: grey;
             }
 
             a:hover,
@@ -60,13 +60,29 @@
             }
         }
     }
-    .calendar-day.grey {
+    .calendar-day.grey,
+    .day.grey {
         color: grey;
         background-color: #f6f6f6;
-        span.day a {
-            color: grey;
+
+    }
+    .calendar-day.grey.weekend,
+    .calendar-day.weekend,
+    .day.grey.weekend,
+    .day.weekend {
+        background-color: #FF9999;
+    }
+
+    .calendar-day.weekend.today,
+    .calendar-day.today,
+    .day.weekend.today,
+    .day.today {
+        background-color: #007A00;
+        span.day {
+            a {color: black;}
         }
     }
+
 
     table.table-fixed {
         table-layout: fixed;

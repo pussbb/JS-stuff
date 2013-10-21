@@ -1,4 +1,6 @@
 
+today = moment()
+
 CalendarException = (@message, @code = 10 ) ->
   @name = "CalendarException"
   @toString = ()=> return "[#{@code}] (#{@name}) - #{@message}"
@@ -29,14 +31,16 @@ class CalendarView extends Backbone.View
     monthView: null
     dayEventsCollectionBaseURL: null
     dayEventsCollection: null
+    lang: 'ru'
   }
 
   initialize: (@$el, options)->
-    @moment =  moment().hours(12)
+
 
     if _.isObject options
       @options = _.extend @options, options
 
+    @moment = moment().lang(@options.lang).hours(12)
     if @options.dayEventsCollectionBaseURL
       CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
 
@@ -76,7 +80,7 @@ class CalendarView extends Backbone.View
     @clear()
 
     if date
-      @moment = moment(date).hours(12)
+      @moment = moment(date).lang(@options.lang).hours(12)
       if not @moment.isValid()
         throw CalendarException "Invalid date", 69
 
@@ -98,9 +102,13 @@ class CalendarView extends Backbone.View
     if not value
       return @options[name]
 
+    @options[name] = value
     switch name
       when 'viewType' then @changeViewTo value
-      else @options[name] = value
+      when 'lang'
+        @moment.lang(value)
+        @refresh()
+
 
 $ ->
 
@@ -129,5 +137,6 @@ $ ->
   vv = $('div.calendar').Calendar {
       'viewType': CalendarView.VIEW_MONTH
     }
+
 
 

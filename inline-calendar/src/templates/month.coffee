@@ -1,45 +1,49 @@
 
-monthTemplate = _.template '
+
+highlightDay = (day, now, sameMonth=true)->
+  cssClass = ""
+  dateInfo = ""
+  if sameMonth
+    if not day.isSame now, 'month'
+      cssClass = " grey "
+  if day.day() in [0,6]
+    cssClass += " weekend"
+  if day.isSame(today, "day")
+    cssClass += " today "
+    dateInfo = "Today"
+  [cssClass, dateInfo]
+
+_monthTemplate = '
 <table class="table table-bordered table-fixed">
   <thead>
     <tr>
-        <% _.each(moment.weekdays(), function (name) {%>
+        <% startOfWeek = moment(startDay).startOf("week") %>
+        <% endOfWeek = moment(startDay).endOf("week") %>
+        <% while(startOfWeek<=endOfWeek) { %>
             <th>
-              <%= name %>
+              <%= startOfWeek.format("dddd") %>
+              <% startOfWeek.add("d",1) %>
             </th>
-        <% });%>
+        <% } %>
     </tr>
   </thead>
   <tbody>
   </tbody>
   <tfoot>
       <% i = 0; %>
-      <% month = now.month() %>
-      <% date = moment() %>
       <% while (startDay < endDate) { %>
           <% if (i % 7 === 0) { %>
               <tr>
           <% } %>
-                  <% cssclass = "" %>
-                  <% dateInfo = "" %>
-                  <% if(month !== startDay.month()) { %>
-                      <% cssclass = " grey " %>
-                  <% } %>
-                  <% if( _.contains([0,6], startDay.day())) { %>
-                      <% cssclass += " label-warning " %>
-                  <% } %>
-                  <% if( startDay.isSame(date, "day") ) { %>
-                      <% cssclass += " label-success " %>
-                      <% dateInfo = "Today" %>
-                  <% } %>
-                  <td class="calendar-day <%= cssclass %>" data-day="<%= startDay %>">
+                  <% dateInfo = highlightDay(startDay, now) %>
+                  <td class="calendar-day <%= dateInfo[0] %>" data-day="<%= startDay %>">
                       <span class="day">
                         <a href="#">
                             <%= startDay.format("DD") %>
                         </a>
                       </span>
                       <span>
-                          <b> <%= dateInfo %> </b>
+                          <b> <%= dateInfo[1] %> </b>
                       </span>
                   </td>
           <% startDay.add("d", 1); %>
@@ -52,3 +56,6 @@ monthTemplate = _.template '
   </tfoot>
 </table>
 '
+
+monthTemplate = (data)->
+  _.template _monthTemplate,_.extend(data, {highlightDay:highlightDay})
