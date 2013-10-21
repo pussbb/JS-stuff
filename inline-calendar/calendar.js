@@ -532,7 +532,7 @@
     CalendarDayView.prototype.template = dayTemplate;
 
     CalendarDayView.prototype.refresh = function(now) {
-      now.hours(0);
+      now.startOf('day');
       this.parent.header.setTitle(now.format(this.parent.options.dayTitleFormat));
       return this.$el.html(this.template({
         'now': now,
@@ -727,7 +727,7 @@
       this.parent.header.setTitle(now.format(this.parent.options.weekTitleFormat), true);
       startDay = moment(now).startOf('week');
       endDate = moment(startDay).endOf('week');
-      now.hours(0);
+      now.startOf('day');
       data = {
         'startDay': startDay,
         'endDate': endDate,
@@ -747,7 +747,6 @@
         $el = $("th.day:eq(" + (cellIndex - 1) + ")", this.$el);
       }
       date = $el.data('day');
-      console.log(moment(date));
       if (!date) {
         return;
       }

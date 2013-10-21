@@ -12,7 +12,7 @@ class CalendarWeekView extends AbstractCalendarView
     @parent.header.setTitle now.format(@parent.options.weekTitleFormat), true
     startDay = moment(now).startOf 'week'
     endDate = moment(startDay).endOf 'week'
-    now.hours(0)
+    now.startOf 'day'
     data = {
       'startDay': startDay,
       'endDate': endDate,
@@ -30,7 +30,6 @@ class CalendarWeekView extends AbstractCalendarView
       $el = $("th.day:eq(#{cellIndex-1})", @$el)
 
     date = $el.data('day')
-    console.log moment(date)
     return if not date
     @notify 'dayclicked', date
 
