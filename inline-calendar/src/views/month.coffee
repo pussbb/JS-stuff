@@ -12,14 +12,15 @@ class CalendarMonthView extends AbstractCalendarView
     e.preventDefault()
     date = $(e.target).closest('td').data('day')
     @notify 'dayclicked', date
-    return if @parent.options.miniMode
-    @parent.changeViewTo CalendarView.VIEW_DAY, date
+
 
   refresh: (now)->
-    @parent.header.setTitle now.format('MMMM YYYY'), true
+    @parent.header.setTitle now.format(@parent.options.monthTitleFormat), true
+
     startDay = moment(now).startOf('month').startOf('week')
     endDate = moment(startDay).week(startDay.week() + 5).endOf 'week'
     data = {'startDay': startDay, 'endDate': endDate, 'now': now}
+
     if @parent.options.miniMode
       @$el.html @templateMini(data)
     else

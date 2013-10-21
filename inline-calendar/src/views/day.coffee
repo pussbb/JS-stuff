@@ -4,5 +4,5 @@ class CalendarDayView extends AbstractCalendarView
 
   refresh: (now)->
     now.hours(0)
-    @parent.header.setTitle now.format('dddd DD MMMM YYYY')
-    @$el.html @template({'now': now})
+    @parent.header.setTitle now.format(@parent.options.dayTitleFormat)
+    @$el.html @template({'now': now, 'timeFormat': @parent.options.timeFormat})

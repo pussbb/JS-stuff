@@ -97,7 +97,7 @@
 ');
 
   dayTemplate = _.template('\
-<table class="table table-bordered">\
+<table class="table table-bordered table-striped">\
   <thead>\
     <tr>\
     </tr>\
@@ -105,9 +105,9 @@
   <tbody>\
       <% nextDay = moment(now).add("d", 1); %>\
       <% while (now < nextDay) { %>\
-        <tr class="week">\
+        <tr class="day">\
             <td class="time">\
-              <%= now.format("HH") %>\
+              <%= now.format(timeFormat) %>\
               <% now.add("h", 1); %>\
             </td>\
             <td>\
@@ -240,28 +240,38 @@
   };
 
   _weekTemplate = '\
-<table class="table table-bordered">\
+<table class="table table-bordered table-striped">\
   <thead>\
     <tr>\
-        <% startDay_ = moment(startDay); %>\
+        <th>&nbsp;</th>\
+        <% startDay_ = moment(startDay) %>\
         <% while (startDay_ <= endDate) {%>\
             <% dateInfo = highlightDay(startDay_, now, false) %>\
-            <th class="day <%= dateInfo[0] %>" >\
-              <%= startDay_.format("dd. DD MMMM") %>\
+            <th class="day <%= dateInfo[0] %>" data-day="<%= startDay_ %>">\
+              <%= startDay_.format(dayInWeekFormat) %>\
               <% startDay_.add("d", 1); %>\
             </th>\
         <% }; %>\
     </tr>\
   </thead>\
   <tbody>\
-      <tr class="week">\
-        <% while (startDay <= endDate) { %>\
-            <td class="day">\
-              <%= startDay.format("DD-MM-YYYY") %>\
-              <% startDay.add("d", 1); %>\
-            </td>\
-        <% }; %>\
-      </tr>\
+      <% nextDay = moment(now).add("d", 1); %>\
+      <% while (now < nextDay) { %>\
+          <tr class="week">\
+              <td class="time">\
+                <%= now.format(timeFormat) %>\
+                <% now.add("h", 1); %>\
+              </td>\
+\
+            <td></td>\
+            <td></td>\
+            <td></td>\
+            <td></td>\
+            <td></td>\
+            <td></td>\
+            <td></td>\
+          </tr>\
+      <% }; %>\
   </tbody>\
   <tfoot>\
 \
@@ -341,12 +351,18 @@
         monthView: null,
         dayEventsCollectionBaseURL: null,
         dayEventsCollection: null,
-        lang: 'ru'
+        lang: 'ru',
+        monthTitleFormat: 'MMMM YYYY',
+        weekTitleFormat: 'MMMM gggg',
+        dayInWeekFormat: 'dd. DD MMMM',
+        dayTitleFormat: 'dddd DD MMMM YYYY',
+        timeFormat: 'hh'
       };
     };
 
     CalendarView.prototype.initialize = function(options) {
-      var data, klass, option, parent, views, _ref2;
+      var data, dayclicked, klass, option, parent, views, _ref2,
+        _this = this;
       this.options = this.defaultOptions();
       if (_.isObject(options)) {
         this.options = _.extend(this.options, options);
@@ -381,6 +397,12 @@
           this.options[option].parent = this;
         }
       }
+      dayclicked = function(date) {
+        if (!_this.options.miniMode) {
+          return _this.changeViewTo(CalendarView.VIEW_DAY, date[0]);
+        }
+      };
+      this.bind('dayclicked', dayclicked);
       return this.refresh();
     };
 
@@ -404,9 +426,10 @@
     CalendarView.prototype.refresh = function(date) {
       this.clear();
       if (date) {
-        this.moment = moment(date).lang(this.options.lang).hours(12);
+        this.moment = moment(date).lang(this.options.lang);
         if (!this.moment.isValid()) {
           throw CalendarException("Invalid date", 69);
+          return this;
         }
       }
       switch (this.options.viewType) {
@@ -421,7 +444,7 @@
           break;
         default:
           throw CalendarException('Not supported view type', 34);
-          return;
+          return this;
       }
       this.header.activateButton(this.options.viewType);
       return this;
@@ -433,14 +456,15 @@
       }
       if (__indexOf.call(CalendarView.availableViews, type) < 0) {
         throw CalendarException('Not supported view type', 34);
-        return;
+        return this;
       }
       if (this.options.miniMode && type !== CalendarView.VIEW_MONTH) {
         throw CalendarException('You cann\'t set another view type except VIEW_MONTH', 35);
-        return;
+        return this;
       }
       this.options.viewType = type;
-      return this.refresh(date);
+      this.refresh(date);
+      return this;
     };
 
     CalendarView.prototype.option = function(name, value) {
@@ -509,9 +533,10 @@
 
     CalendarDayView.prototype.refresh = function(now) {
       now.hours(0);
-      this.parent.header.setTitle(now.format('dddd DD MMMM YYYY'));
+      this.parent.header.setTitle(now.format(this.parent.options.dayTitleFormat));
       return this.$el.html(this.template({
-        'now': now
+        'now': now,
+        'timeFormat': this.parent.options.timeFormat
       }));
     };
 
@@ -567,8 +592,6 @@
         return this.title.removeClass('changable');
       }
     };
-
-    CalendarHeaderView.prototype.setMiniMode = function() {};
 
     CalendarHeaderView.prototype._change_view_event_handler = function(e) {
       var $btn, i, _i, _len, _ref4;
@@ -659,16 +682,12 @@
       var date;
       e.preventDefault();
       date = $(e.target).closest('td').data('day');
-      this.notify('dayclicked', date);
-      if (this.parent.options.miniMode) {
-        return;
-      }
-      return this.parent.changeViewTo(CalendarView.VIEW_DAY, date);
+      return this.notify('dayclicked', date);
     };
 
     CalendarMonthView.prototype.refresh = function(now) {
       var data, endDate, startDay;
-      this.parent.header.setTitle(now.format('MMMM YYYY'), true);
+      this.parent.header.setTitle(now.format(this.parent.options.monthTitleFormat), true);
       startDay = moment(now).startOf('month').startOf('week');
       endDate = moment(startDay).week(startDay.week() + 5).endOf('week');
       data = {
@@ -698,16 +717,41 @@
 
     CalendarWeekView.prototype.template = weekTemplate;
 
+    CalendarWeekView.prototype.events = {
+      'click th.day': '_view_day_event_handler',
+      'dblclick td': '_view_day_event_handler'
+    };
+
     CalendarWeekView.prototype.refresh = function(now) {
-      var endDate, startDay;
-      this.parent.header.setTitle(now.format('MMMM gggg'), true);
+      var data, endDate, startDay;
+      this.parent.header.setTitle(now.format(this.parent.options.weekTitleFormat), true);
       startDay = moment(now).startOf('week');
       endDate = moment(startDay).endOf('week');
-      return this.$el.html(this.template({
+      now.hours(0);
+      data = {
         'startDay': startDay,
         'endDate': endDate,
-        'now': now
-      }));
+        'now': now,
+        'timeFormat': this.parent.options.timeFormat,
+        'dayInWeekFormat': this.parent.options.dayInWeekFormat
+      };
+      return this.$el.html(this.template(data));
+    };
+
+    CalendarWeekView.prototype._view_day_event_handler = function(e) {
+      var $el, cellIndex, date;
+      e.preventDefault();
+      $el = $(e.target);
+      if ($el.is('td')) {
+        cellIndex = $el[0].cellIndex;
+        $el = $("th.day:eq(" + (cellIndex - 1) + ")", this.$el);
+      }
+      date = $el.data('day');
+      console.log(moment(date));
+      if (!date) {
+        return;
+      }
+      return this.notify('dayclicked', date);
     };
 
     return CalendarWeekView;

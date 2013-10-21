@@ -1,27 +1,37 @@
 
 _weekTemplate = '
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
   <thead>
     <tr>
-        <% startDay_ = moment(startDay); %>
+        <th>&nbsp;</th>
+        <% startDay_ = moment(startDay) %>
         <% while (startDay_ <= endDate) {%>
             <% dateInfo = highlightDay(startDay_, now, false) %>
-            <th class="day <%= dateInfo[0] %>" >
-              <%= startDay_.format("dd. DD MMMM") %>
+            <th class="day <%= dateInfo[0] %>" data-day="<%= startDay_ %>">
+              <%= startDay_.format(dayInWeekFormat) %>
               <% startDay_.add("d", 1); %>
             </th>
         <% }; %>
     </tr>
   </thead>
   <tbody>
-      <tr class="week">
-        <% while (startDay <= endDate) { %>
-            <td class="day">
-              <%= startDay.format("DD-MM-YYYY") %>
-              <% startDay.add("d", 1); %>
-            </td>
-        <% }; %>
-      </tr>
+      <% nextDay = moment(now).add("d", 1); %>
+      <% while (now < nextDay) { %>
+          <tr class="week">
+              <td class="time">
+                <%= now.format(timeFormat) %>
+                <% now.add("h", 1); %>
+              </td>
+
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+      <% }; %>
   </tbody>
   <tfoot>
 

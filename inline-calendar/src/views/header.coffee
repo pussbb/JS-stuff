@@ -33,8 +33,6 @@ class CalendarHeaderView extends AbstractCalendarView
     else
       @title.removeClass 'changable'
 
-  setMiniMode: ->
-
   _change_view_event_handler: (e)->
     $btn = $(e.target)
     for i in CalendarView.availableViews

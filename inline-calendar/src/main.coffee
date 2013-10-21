@@ -43,6 +43,11 @@ class CalendarView extends Backbone.View
       dayEventsCollectionBaseURL: null
       dayEventsCollection: null
       lang: 'ru'
+      monthTitleFormat: 'MMMM YYYY'
+      weekTitleFormat: 'MMMM gggg'
+      dayInWeekFormat: 'dd. DD MMMM'
+      dayTitleFormat: 'dddd DD MMMM YYYY'
+      timeFormat: 'hh' # 'hh a' with am/pm
     }
 
   initialize: (options)->
@@ -78,6 +83,12 @@ class CalendarView extends Backbone.View
         @options[option].$el = @container
         @options[option].parent = @
 
+    dayclicked = (date)=>
+      if not @options.miniMode
+        @changeViewTo CalendarView.VIEW_DAY, date[0]
+
+    @bind 'dayclicked', dayclicked
+
     @refresh()
 
   render: ()->
@@ -95,9 +106,10 @@ class CalendarView extends Backbone.View
     @clear()
 
     if date
-      @moment = moment(date).lang(@options.lang).hours(12)
+      @moment = moment(date).lang(@options.lang)#.hours(12)
       if not @moment.isValid()
         throw CalendarException "Invalid date", 69
+        return @
 
     switch @options.viewType
       when CalendarView.VIEW_DAY then @options.dayView.refresh @moment
@@ -105,20 +117,21 @@ class CalendarView extends Backbone.View
       when CalendarView.VIEW_MONTH then @options.monthView.refresh @moment
       else
         throw CalendarException 'Not supported view type', 34
-        return
+        return @
     @header.activateButton @options.viewType
     @
 
   changeViewTo: (type=CalendarView.VIEW_MONTH, date)->
     if type not in CalendarView.availableViews
       throw CalendarException 'Not supported view type', 34
-      return
+      return @
 
     if @options.miniMode and type isnt CalendarView.VIEW_MONTH
       throw CalendarException 'You cann\'t set another view type except VIEW_MONTH', 35
-      return
+      return @
     @options.viewType = type
     @refresh date
+    @
 
   option: (name, value)->
     if not value
