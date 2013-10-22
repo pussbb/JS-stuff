@@ -49,10 +49,14 @@
     th.day {
         cursor: pointer;
     }
-    .calendar-day {
+
+    .expanded-day {
         min-height: 80px;
         height: 80px;
-        span.day {
+    }
+
+    .day {
+        span.date {
             font-size: small;
 
             a {
@@ -65,21 +69,17 @@
             }
         }
     }
-    .calendar-day.grey,
     .day.grey {
         color: grey;
         background-color: #f6f6f6;
 
     }
-    .calendar-day.grey.weekend,
-    .calendar-day.weekend,
+
     .day.grey.weekend,
     .day.weekend {
         background-color: #FF9999;
     }
 
-    .calendar-day.weekend.today,
-    .calendar-day.today,
     .day.weekend.today,
     .day.today {
         background-color: #007A00;
@@ -88,6 +88,13 @@
         }
     }
 
+    .hover
+    .day.today.hover,
+    .day.weekend.hover,
+    .day.grey.hover,
+    .day.hover{
+        background-color: #f0ad4e;
+    }
 
     table.table-fixed {
         table-layout: fixed;

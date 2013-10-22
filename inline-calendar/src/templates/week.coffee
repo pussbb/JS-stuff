@@ -2,7 +2,7 @@
 _weekTemplate = '
 <table class="table table-bordered table-striped">
   <thead>
-    <tr>
+    <tr class="week">
         <th>&nbsp;</th>
         <% startDay_ = moment(startDay) %>
         <% while (startDay_ <= endDate) {%>
@@ -23,13 +23,13 @@ _weekTemplate = '
                 <% now.add("h", 1); %>
               </td>
 
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td class="day"></td>
+            <td class="day"></td>
+            <td class="day"></td>
+            <td class="day"></td>
+            <td class="day"></td>
+            <td class="day"></td>
+            <td class="day"></td>
           </tr>
       <% }; %>
   </tbody>

@@ -36,8 +36,8 @@ _monthTemplate = '
               <tr>
           <% } %>
                   <% dateInfo = highlightDay(startDay, now) %>
-                  <td class="calendar-day <%= dateInfo[0] %>" data-day="<%= startDay %>">
-                      <span class="day">
+                  <td class="day expanded-day <%= dateInfo[0] %>" data-day="<%= startDay %>">
+                      <span class="date">
                         <a href="#">
                             <%= startDay.format("DD") %>
                         </a>
@@ -80,7 +80,7 @@ _monthTemplateMini = '
           <% } %>
                   <% dateInfo = highlightDay(startDay, now) %>
                   <td class="day <%= dateInfo[0] %>" data-day="<%= startDay %>">
-                      <span class="day">
+                      <span class="date">
                         <a href="#">
                             <%= startDay.format("DD") %>
                         </a>

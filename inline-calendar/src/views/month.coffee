@@ -5,14 +5,10 @@ class CalendarMonthView extends AbstractCalendarView
   templateMini: monthTemplateMini
 
   events: {
-    'click span.day a': '_view_day_event_handler'
+    'click span.date a': '_view_day_event_handler'
+    'mouseenter td[class*="day"]': '_mouseenter_hover_event_handler'
+    'mouseleave td[class*="day"]': '_mouseleave_day_event_handler'
   }
-
-  _view_day_event_handler: (e)->
-    e.preventDefault()
-    date = $(e.target).closest('td').data('day')
-    @notify 'dayclicked', date
-
 
   refresh: (now)->
     @parent.header.setTitle now.format(@parent.options.monthTitleFormat), true
@@ -26,3 +22,15 @@ class CalendarMonthView extends AbstractCalendarView
     else
       @$el.html @template(data)
     @
+
+
+  _view_day_event_handler: (e)->
+    e.preventDefault()
+    date = $(e.target).closest('td').data('day')
+    @notify 'dayclicked', date
+
+  _mouseenter_hover_event_handler: (e)->
+    $(e.target).addClass 'hover'
+
+  _mouseleave_day_event_handler: (e)->
+    $('td.hover', @$el).removeClass 'hover'

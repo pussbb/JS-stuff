@@ -167,8 +167,8 @@
               <tr>\
           <% } %>\
                   <% dateInfo = highlightDay(startDay, now) %>\
-                  <td class="calendar-day <%= dateInfo[0] %>" data-day="<%= startDay %>">\
-                      <span class="day">\
+                  <td class="day expanded-day <%= dateInfo[0] %>" data-day="<%= startDay %>">\
+                      <span class="date">\
                         <a href="#">\
                             <%= startDay.format("DD") %>\
                         </a>\
@@ -211,7 +211,7 @@
           <% } %>\
                   <% dateInfo = highlightDay(startDay, now) %>\
                   <td class="day <%= dateInfo[0] %>" data-day="<%= startDay %>">\
-                      <span class="day">\
+                      <span class="date">\
                         <a href="#">\
                             <%= startDay.format("DD") %>\
                         </a>\
@@ -242,7 +242,7 @@
   _weekTemplate = '\
 <table class="table table-bordered table-striped">\
   <thead>\
-    <tr>\
+    <tr class="week">\
         <th>&nbsp;</th>\
         <% startDay_ = moment(startDay) %>\
         <% while (startDay_ <= endDate) {%>\
@@ -263,13 +263,13 @@
                 <% now.add("h", 1); %>\
               </td>\
 \
-            <td></td>\
-            <td></td>\
-            <td></td>\
-            <td></td>\
-            <td></td>\
-            <td></td>\
-            <td></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
+            <td class="day"></td>\
           </tr>\
       <% }; %>\
   </tbody>\
@@ -675,14 +675,9 @@
     CalendarMonthView.prototype.templateMini = monthTemplateMini;
 
     CalendarMonthView.prototype.events = {
-      'click span.day a': '_view_day_event_handler'
-    };
-
-    CalendarMonthView.prototype._view_day_event_handler = function(e) {
-      var date;
-      e.preventDefault();
-      date = $(e.target).closest('td').data('day');
-      return this.notify('dayclicked', date);
+      'click span.date a': '_view_day_event_handler',
+      'mouseenter td[class*="day"]': '_mouseenter_hover_event_handler',
+      'mouseleave td[class*="day"]': '_mouseleave_day_event_handler'
     };
 
     CalendarMonthView.prototype.refresh = function(now) {
@@ -703,6 +698,21 @@
       return this;
     };
 
+    CalendarMonthView.prototype._view_day_event_handler = function(e) {
+      var date;
+      e.preventDefault();
+      date = $(e.target).closest('td').data('day');
+      return this.notify('dayclicked', date);
+    };
+
+    CalendarMonthView.prototype._mouseenter_hover_event_handler = function(e) {
+      return $(e.target).addClass('hover');
+    };
+
+    CalendarMonthView.prototype._mouseleave_day_event_handler = function(e) {
+      return $('td.hover', this.$el).removeClass('hover');
+    };
+
     return CalendarMonthView;
 
   })(AbstractCalendarView);
@@ -719,7 +729,9 @@
 
     CalendarWeekView.prototype.events = {
       'click th.day': '_view_day_event_handler',
-      'dblclick td': '_view_day_event_handler'
+      'dblclick td': '_view_day_event_handler',
+      'mouseenter tr.week .day': '_mouseenter_hover_event_handler',
+      'mouseleave tr.week .day': '_mouseleave_day_event_handler'
     };
 
     CalendarWeekView.prototype.refresh = function(now) {
@@ -743,7 +755,7 @@
       e.preventDefault();
       $el = $(e.target);
       if ($el.is('td')) {
-        cellIndex = $el[0].cellIndex;
+        cellIndex = e.target.cellIndex;
         $el = $("th.day:eq(" + (cellIndex - 1) + ")", this.$el);
       }
       date = $el.data('day');
@@ -751,6 +763,17 @@
         return;
       }
       return this.notify('dayclicked', date);
+    };
+
+    CalendarWeekView.prototype._mouseenter_hover_event_handler = function(e) {
+      var cellIndex, selector;
+      cellIndex = e.target.cellIndex + 1;
+      selector = "th.day:nth-child(" + cellIndex + "),td.day:nth-child(" + cellIndex + ")";
+      return $(selector, this.$el).addClass('hover');
+    };
+
+    CalendarWeekView.prototype._mouseleave_day_event_handler = function(e) {
+      return $('.hover', this.$el).removeClass('hover');
     };
 
     return CalendarWeekView;
