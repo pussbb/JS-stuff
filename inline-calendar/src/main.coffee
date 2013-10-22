@@ -46,7 +46,7 @@ class CalendarView extends Backbone.View
       monthTitleFormat: 'MMMM YYYY'
       weekTitleFormat: 'MMMM gggg'
       dayInWeekFormat: 'dd. DD MMMM'
-      dayTitleFormat: 'dddd DD MMMM YYYY'
+      dayTitleFormat: 'dddd Do MMMM YYYY'
       timeFormat: 'hh' # 'hh a' with am/pm
     }
 
@@ -106,29 +106,24 @@ class CalendarView extends Backbone.View
     @clear()
 
     if date
-      @moment = moment(date).lang(@options.lang)#.hours(12)
+      @moment = moment(date).lang(@options.lang).startOf 'day'
       if not @moment.isValid()
-        throw CalendarException "Invalid date", 69
-        return @
+        return throw CalendarException "Invalid date", 69
 
     switch @options.viewType
-      when CalendarView.VIEW_DAY then @options.dayView.refresh @moment
-      when CalendarView.VIEW_WEEK then @options.weekView.refresh @moment
-      when CalendarView.VIEW_MONTH then @options.monthView.refresh @moment
-      else
-        throw CalendarException 'Not supported view type', 34
-        return @
+      when CalendarView.VIEW_DAY then @options.dayView.refresh moment(@moment)
+      when CalendarView.VIEW_WEEK then @options.weekView.refresh moment(@moment)
+      when CalendarView.VIEW_MONTH then @options.monthView.refresh moment(@moment)
+      else return throw CalendarException 'Not supported view type', 34
     @header.activateButton @options.viewType
     @
 
   changeViewTo: (type=CalendarView.VIEW_MONTH, date)->
     if type not in CalendarView.availableViews
-      throw CalendarException 'Not supported view type', 34
-      return @
+      return throw CalendarException 'Not supported view type', 34
 
     if @options.miniMode and type isnt CalendarView.VIEW_MONTH
-      throw CalendarException 'You cann\'t set another view type except VIEW_MONTH', 35
-      return @
+      return throw CalendarException 'You cann\'t set another view type except VIEW_MONTH', 35
     @options.viewType = type
     @refresh date
     @
@@ -143,7 +138,6 @@ class CalendarView extends Backbone.View
       when 'lang'
         @moment.lang(value)
         @refresh()
-
 
 $ ->
 

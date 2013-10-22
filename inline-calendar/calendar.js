@@ -355,7 +355,7 @@
         monthTitleFormat: 'MMMM YYYY',
         weekTitleFormat: 'MMMM gggg',
         dayInWeekFormat: 'dd. DD MMMM',
-        dayTitleFormat: 'dddd DD MMMM YYYY',
+        dayTitleFormat: 'dddd Do MMMM YYYY',
         timeFormat: 'hh'
       };
     };
@@ -426,25 +426,23 @@
     CalendarView.prototype.refresh = function(date) {
       this.clear();
       if (date) {
-        this.moment = moment(date).lang(this.options.lang);
+        this.moment = moment(date).lang(this.options.lang).startOf('day');
         if (!this.moment.isValid()) {
           throw CalendarException("Invalid date", 69);
-          return this;
         }
       }
       switch (this.options.viewType) {
         case CalendarView.VIEW_DAY:
-          this.options.dayView.refresh(this.moment);
+          this.options.dayView.refresh(moment(this.moment));
           break;
         case CalendarView.VIEW_WEEK:
-          this.options.weekView.refresh(this.moment);
+          this.options.weekView.refresh(moment(this.moment));
           break;
         case CalendarView.VIEW_MONTH:
-          this.options.monthView.refresh(this.moment);
+          this.options.monthView.refresh(moment(this.moment));
           break;
         default:
           throw CalendarException('Not supported view type', 34);
-          return this;
       }
       this.header.activateButton(this.options.viewType);
       return this;
@@ -456,11 +454,9 @@
       }
       if (__indexOf.call(CalendarView.availableViews, type) < 0) {
         throw CalendarException('Not supported view type', 34);
-        return this;
       }
       if (this.options.miniMode && type !== CalendarView.VIEW_MONTH) {
         throw CalendarException('You cann\'t set another view type except VIEW_MONTH', 35);
-        return this;
       }
       this.options.viewType = type;
       this.refresh(date);
@@ -600,8 +596,7 @@
       for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
         i = _ref4[_i];
         if ($btn.hasClass("view-" + i)) {
-          this.parent.changeViewTo(i);
-          return;
+          return this.parent.changeViewTo(i);
         }
       }
     };
@@ -626,7 +621,7 @@
     CalendarHeaderView.prototype._next_event_handler = function() {
       switch (this.parent.options.viewType) {
         case CalendarView.VIEW_DAY:
-          this.parent.moment.startOf('day').add('h', 12);
+          this.parent.moment.add('h', 12);
           break;
         case CalendarView.VIEW_WEEK:
           this.parent.moment.add('w', 1);

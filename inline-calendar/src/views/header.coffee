@@ -37,23 +37,22 @@ class CalendarHeaderView extends AbstractCalendarView
     $btn = $(e.target)
     for i in CalendarView.availableViews
       if $btn.hasClass "view-#{i}"
-        @parent.changeViewTo i
-        return
+        return @parent.changeViewTo i
 
   _previuos_event_handler: ->
     switch @parent.options.viewType
       when CalendarView.VIEW_DAY then @parent.moment.subtract('days', 2)
       when CalendarView.VIEW_WEEK then @parent.moment.subtract('w', 1)
       when CalendarView.VIEW_MONTH then @parent.moment.subtract('M', 1)
-      else throw CalendarException 'Not supported view type', 34
+      else return throw CalendarException 'Not supported view type', 34
     @parent.refresh()
 
   _next_event_handler: ->
     switch @parent.options.viewType
-      when CalendarView.VIEW_DAY then @parent.moment.startOf('day').add 'h', 12
+      when CalendarView.VIEW_DAY then @parent.moment.add 'h', 12
       when CalendarView.VIEW_WEEK then @parent.moment.add 'w', 1
       when CalendarView.VIEW_MONTH then @parent.moment.add 'M', 1
-      else throw CalendarException 'Not supported view type', 34
+      else return throw CalendarException 'Not supported view type', 34
     @parent.refresh()
 
   _header_title_dblclick_event_handler: ->
