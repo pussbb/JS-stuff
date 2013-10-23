@@ -58,15 +58,18 @@ changeMonthYear = _.template '
 <form class="form-inline" name="change_month_year" role="form">
   <div class="form-group">
     <select name="month" class="form-control">
-        <% _.each(moment.months(), function(name, key){ %>
+        <% months = moment(now).startOf("year").startOf("month")%>
+        <% currentMonth = now.month() %>
+        <% for( i = months.month(); i <= 11; i++ ) { %>
             <option
-            <% if ( now.month() === key ) { %>
+            <% if ( currentMonth === i ) { %>
               selected="selected"
             <% } %>
-            value="<%= key %>">
-                <%= name %>
+            value="<%= i %>">
+                <%= months.format("MMMM") %>
             </option>
-        <% }) %>
+            <% months.add("M", 1) %>
+        <% } %>
     </select>
   </div>
   <div class="form-group">

@@ -62,15 +62,18 @@
 <form class="form-inline" name="change_month_year" role="form">\
   <div class="form-group">\
     <select name="month" class="form-control">\
-        <% _.each(moment.months(), function(name, key){ %>\
+        <% months = moment(now).startOf("year").startOf("month")%>\
+        <% currentMonth = now.month() %>\
+        <% for( i = months.month(); i <= 11; i++ ) { %>\
             <option\
-            <% if ( now.month() === key ) { %>\
+            <% if ( currentMonth === i ) { %>\
               selected="selected"\
             <% } %>\
-            value="<%= key %>">\
-                <%= name %>\
+            value="<%= i %>">\
+                <%= months.format("MMMM") %>\
             </option>\
-        <% }) %>\
+            <% months.add("M", 1) %>\
+        <% } %>\
     </select>\
   </div>\
   <div class="form-group">\
@@ -382,7 +385,12 @@
         data = _.isArray(((_ref2 = this.options.dayEventsCollection) != null ? _ref2 : this.options.dayEventsCollection) | []);
         this.collection = this.options.dayEventsCollection = new CalendarDayEventsCollection(data);
       }
-      this.render();
+      this.$el.html(this.template());
+      this.header = new CalendarHeaderView({
+        'el': $('.header', this.$el),
+        'parent': this
+      });
+      this.header.render();
       this.container = $('div.calendar-container', this.$el);
       views = {
         'dayView': CalendarDayView,
@@ -411,21 +419,9 @@
       return this.refresh();
     };
 
-    CalendarView.prototype.render = function() {
-      var parent;
-      this.$el.html(this.template());
-      parent = this;
-      this.header = new CalendarHeaderView({
-        'el': $('.header', this.$el),
-        'parent': parent
-      });
-      this.header.render();
-      return this;
-    };
-
     CalendarView.prototype.clear = function() {
       this.container.html('');
-      return this;
+      return this.$el;
     };
 
     CalendarView.prototype.refresh = function(date) {
@@ -450,7 +446,7 @@
           throw CalendarException('Not supported view type', 34);
       }
       this.header.activateButton(this.options.viewType);
-      return this;
+      return this.$el;
     };
 
     CalendarView.prototype.changeViewTo = function(type, date) {
@@ -466,7 +462,7 @@
       this.options.viewType = type;
       this.refresh(date);
       date = null;
-      return this;
+      return this.$el;
     };
 
     CalendarView.prototype.option = function(name, value) {
@@ -499,12 +495,15 @@
         this.options[i].remove();
         this.options[i] = null;
       }
+      this.container = null;
       this.collection.stopListening();
       this.collection.reset();
-      this.options.dayEventsCollection.stopListening();
-      this.options.dayEventsCollection.reset();
       this.collection = null;
-      this.options.dayEventsCollection = null;
+      if (this.options.dayEventsCollection) {
+        this.options.dayEventsCollection.stopListening();
+        this.options.dayEventsCollection.reset();
+        this.options.dayEventsCollection = null;
+      }
       this.options = null;
       this.moment = null;
       this.$el.html('');
@@ -680,7 +679,7 @@
 
     CalendarHeaderView.prototype._header_title_dblclick_event_handler = function() {
       return this.title.html(this.changeMonthYearTemplate({
-        'now': this.parent.moment
+        'now': moment(this.parent.moment)
       }));
     };
 

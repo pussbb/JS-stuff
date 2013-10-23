@@ -59,7 +59,6 @@ class CalendarView extends Backbone.View
     if _.isObject options
       @options = _.extend @options, options
 
-
     @moment = moment(today).lang(@options.lang).startOf 'day'
     if @options.dayEventsCollectionBaseURL
       CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
@@ -71,7 +70,11 @@ class CalendarView extends Backbone.View
       data = _.isArray @options.dayEventsCollection ? @options.dayEventsCollection | []
       @collection = @options.dayEventsCollection = new CalendarDayEventsCollection data
 
-    @render()
+    #render
+    @$el.html @template()
+    @header = new CalendarHeaderView {'el': $('.header', @$el), 'parent': @}
+    @header.render()
+
     @container = $('div.calendar-container', @$el)
     views = {
       'dayView': CalendarDayView
@@ -95,16 +98,9 @@ class CalendarView extends Backbone.View
 
     @refresh()
 
-  render: ()->
-    @$el.html @template()
-    parent = @
-    @header = new CalendarHeaderView {'el': $('.header', @$el), 'parent': parent}
-    @header.render()
-    @
-
   clear: ->
     @container.html ''
-    @
+    @$el
 
   refresh: (date)->
     @clear()
@@ -120,7 +116,7 @@ class CalendarView extends Backbone.View
       when CalendarView.VIEW_MONTH then @options.monthView.refresh moment(@moment)
       else return throw CalendarException 'Not supported view type', 34
     @header.activateButton @options.viewType
-    @
+    @$el
 
   changeViewTo: (type=CalendarView.VIEW_MONTH, date)->
     if type not in CalendarView.availableViews
@@ -131,7 +127,7 @@ class CalendarView extends Backbone.View
     @options.viewType = type
     @refresh date
     date = null
-    @
+    @$el
 
   option: (name, value)->
     if not value
@@ -147,21 +143,28 @@ class CalendarView extends Backbone.View
   destroy: ->
     @undelegateEvents()
     @stopListening()
+
     @header.undelegateEvents()
     @header.stopListening()
     @header.remove()
     @header = null
+
     for i in ['dayView', 'weekView', 'monthView']
       @options[i].undelegateEvents()
       @options[i].stopListening()
       @options[i].remove()
       @options[i] = null
+
+    @container = null
     @collection.stopListening()
     @collection.reset()
-    @options.dayEventsCollection.stopListening()
-    @options.dayEventsCollection.reset()
     @collection = null
-    @options.dayEventsCollection = null
+
+    if @options.dayEventsCollection
+      @options.dayEventsCollection.stopListening()
+      @options.dayEventsCollection.reset()
+      @options.dayEventsCollection = null
+
     @options = null
     @moment = null
     @$el.html ''
@@ -172,7 +175,7 @@ class CalendarView extends Backbone.View
 $ ->
 
   $.fn.Calendar = (options)->
-    args = Array.prototype.slice.call(arguments, 1)
+    args = Array.prototype.slice.call arguments, 1
     result = []
     $res = @each ()->
       $el = $(@)

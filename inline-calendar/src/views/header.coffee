@@ -56,7 +56,7 @@ class CalendarHeaderView extends AbstractCalendarView
     @parent.refresh()
 
   _header_title_dblclick_event_handler: ->
-    @title.html @changeMonthYearTemplate({'now': @parent.moment})
+    @title.html @changeMonthYearTemplate({'now': moment(@parent.moment)})
 
   _change_month_year_event_handler: (e)->
     e.preventDefault()
