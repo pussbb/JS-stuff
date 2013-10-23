@@ -6,3 +6,5 @@ class CalendarDayView extends AbstractCalendarView
     now.startOf 'day'
     @parent.header.setTitle now.format(@parent.options.dayTitleFormat)
     @$el.html @template({'now': now, 'timeFormat': @parent.options.timeFormat})
+    now = null
+    @

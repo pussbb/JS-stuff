@@ -41,7 +41,7 @@ class CalendarHeaderView extends AbstractCalendarView
 
   _previuos_event_handler: ->
     switch @parent.options.viewType
-      when CalendarView.VIEW_DAY then @parent.moment.subtract('days', 2)
+      when CalendarView.VIEW_DAY then @parent.moment.subtract('days', 1)
       when CalendarView.VIEW_WEEK then @parent.moment.subtract('w', 1)
       when CalendarView.VIEW_MONTH then @parent.moment.subtract('M', 1)
       else return throw CalendarException 'Not supported view type', 34
@@ -49,7 +49,7 @@ class CalendarHeaderView extends AbstractCalendarView
 
   _next_event_handler: ->
     switch @parent.options.viewType
-      when CalendarView.VIEW_DAY then @parent.moment.add 'h', 12
+      when CalendarView.VIEW_DAY then @parent.moment.add 'd', 1
       when CalendarView.VIEW_WEEK then @parent.moment.add 'w', 1
       when CalendarView.VIEW_MONTH then @parent.moment.add 'M', 1
       else return throw CalendarException 'Not supported view type', 34

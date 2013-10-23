@@ -367,7 +367,7 @@
       if (_.isObject(options)) {
         this.options = _.extend(this.options, options);
       }
-      this.moment = moment().lang(this.options.lang).hours(12);
+      this.moment = moment(today).lang(this.options.lang).startOf('day');
       if (this.options.dayEventsCollectionBaseURL) {
         CalendarDayEventsCollection.baseURL = this.options.dayEventsCollectionBaseURL;
       }
@@ -460,6 +460,7 @@
       }
       this.options.viewType = type;
       this.refresh(date);
+      date = null;
       return this;
     };
 
@@ -477,6 +478,35 @@
       }
     };
 
+    CalendarView.prototype.destroy = function() {
+      var i, _i, _len, _ref2;
+      this.undelegateEvents();
+      this.stopListening();
+      this.header.undelegateEvents();
+      this.header.stopListening();
+      this.header.remove();
+      this.header = null;
+      _ref2 = ['dayView', 'weekView', 'monthView'];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        i = _ref2[_i];
+        this.options[i].undelegateEvents();
+        this.options[i].stopListening();
+        this.options[i].remove();
+        this.options[i] = null;
+      }
+      this.collection.stopListening();
+      this.collection.reset();
+      this.options.dayEventsCollection.stopListening();
+      this.options.dayEventsCollection.reset();
+      this.collection = null;
+      this.options.dayEventsCollection = null;
+      this.options = null;
+      this.moment = null;
+      this.$el.html('');
+      this.$el.data('Calendar', null);
+      return this.$el = null;
+    };
+
     return CalendarView;
 
   })(Backbone.View);
@@ -490,6 +520,9 @@
         var $el, obj, result_;
         $el = $(this);
         obj = $el.data('Calendar');
+        if (!obj && _.isString(options)) {
+          throw CalendarException('Firstly you must create object before trying to use it', 12);
+        }
         if (!obj) {
           obj = new CalendarView(_.extend({
             el: $el
@@ -505,7 +538,9 @@
         } else {
           result_ = obj[options].apply(obj, args);
         }
-        return result.push(result_);
+        result.push(result_);
+        obj = null;
+        return $el = null;
       });
       if (!result.length) {
         return $res;
@@ -530,10 +565,12 @@
     CalendarDayView.prototype.refresh = function(now) {
       now.startOf('day');
       this.parent.header.setTitle(now.format(this.parent.options.dayTitleFormat));
-      return this.$el.html(this.template({
+      this.$el.html(this.template({
         'now': now,
         'timeFormat': this.parent.options.timeFormat
       }));
+      now = null;
+      return this;
     };
 
     return CalendarDayView;
@@ -604,7 +641,7 @@
     CalendarHeaderView.prototype._previuos_event_handler = function() {
       switch (this.parent.options.viewType) {
         case CalendarView.VIEW_DAY:
-          this.parent.moment.subtract('days', 2);
+          this.parent.moment.subtract('days', 1);
           break;
         case CalendarView.VIEW_WEEK:
           this.parent.moment.subtract('w', 1);
@@ -621,7 +658,7 @@
     CalendarHeaderView.prototype._next_event_handler = function() {
       switch (this.parent.options.viewType) {
         case CalendarView.VIEW_DAY:
-          this.parent.moment.add('h', 12);
+          this.parent.moment.add('d', 1);
           break;
         case CalendarView.VIEW_WEEK:
           this.parent.moment.add('w', 1);
@@ -690,6 +727,9 @@
       } else {
         this.$el.html(this.template(data));
       }
+      now = null;
+      startDay = null;
+      endDate = null;
       return this;
     };
 
@@ -742,7 +782,11 @@
         'timeFormat': this.parent.options.timeFormat,
         'dayInWeekFormat': this.parent.options.dayInWeekFormat
       };
-      return this.$el.html(this.template(data));
+      this.$el.html(this.template(data));
+      now = null;
+      startDay = null;
+      endDate = null;
+      return this;
     };
 
     CalendarWeekView.prototype._view_day_event_handler = function(e) {

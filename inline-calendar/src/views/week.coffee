@@ -23,6 +23,10 @@ class CalendarWeekView extends AbstractCalendarView
       'dayInWeekFormat': @parent.options.dayInWeekFormat
     }
     @$el.html @template(data)
+    now = null
+    startDay = null
+    endDate = null
+    @
 
   _view_day_event_handler: (e)->
     e.preventDefault()

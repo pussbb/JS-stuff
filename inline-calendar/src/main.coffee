@@ -56,7 +56,7 @@ class CalendarView extends Backbone.View
       @options = _.extend @options, options
 
 
-    @moment = moment().lang(@options.lang).hours(12)
+    @moment = moment(today).lang(@options.lang).startOf 'day'
     if @options.dayEventsCollectionBaseURL
       CalendarDayEventsCollection.baseURL = @options.dayEventsCollectionBaseURL
 
@@ -126,6 +126,7 @@ class CalendarView extends Backbone.View
       return throw CalendarException 'You cann\'t set another view type except VIEW_MONTH', 35
     @options.viewType = type
     @refresh date
+    date = null
     @
 
   option: (name, value)->
@@ -139,6 +140,31 @@ class CalendarView extends Backbone.View
         @moment.lang(value)
         @refresh()
 
+  destroy: ->
+    @undelegateEvents()
+    @stopListening()
+    @header.undelegateEvents()
+    @header.stopListening()
+    @header.remove()
+    @header = null
+    for i in ['dayView', 'weekView', 'monthView']
+      @options[i].undelegateEvents()
+      @options[i].stopListening()
+      @options[i].remove()
+      @options[i] = null
+    @collection.stopListening()
+    @collection.reset()
+    @options.dayEventsCollection.stopListening()
+    @options.dayEventsCollection.reset()
+    @collection = null
+    @options.dayEventsCollection = null
+    @options = null
+    @moment = null
+    @$el.html ''
+    @$el.data 'Calendar', null
+    @$el = null
+
+
 $ ->
 
   $.fn.Calendar = (options)->
@@ -147,6 +173,8 @@ $ ->
     $res = @each ()->
       $el = $(@)
       obj = $el.data 'Calendar'
+      if ! obj and _.isString options
+        return throw CalendarException 'Firstly you must create object before trying to use it', 12
       if ! obj
         obj = new CalendarView _.extend({el: $el}, options)
         $el.data 'Calendar', obj
@@ -157,6 +185,8 @@ $ ->
       else
         result_ = obj[options].apply obj, args
       result.push result_
+      obj = null
+      $el = null
 
     return $res if not result.length
     result = result[0] if result.length is 1

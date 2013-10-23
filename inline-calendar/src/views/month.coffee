@@ -21,8 +21,11 @@ class CalendarMonthView extends AbstractCalendarView
       @$el.html @templateMini(data)
     else
       @$el.html @template(data)
-    @
 
+    now = null
+    startDay = null
+    endDate = null
+    @
 
   _view_day_event_handler: (e)->
     e.preventDefault()
