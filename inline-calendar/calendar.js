@@ -320,6 +320,11 @@
       return this;
     };
 
+    AbstractCalendarView.prototype.remove = function() {
+      this.parent = null;
+      return AbstractCalendarView.__super__.remove.apply(this, arguments);
+    };
+
     return AbstractCalendarView;
 
   })(Backbone.View);
@@ -504,7 +509,8 @@
       this.moment = null;
       this.$el.html('');
       this.$el.data('Calendar', null);
-      return this.$el = null;
+      this.$el = null;
+      return this;
     };
 
     return CalendarView;

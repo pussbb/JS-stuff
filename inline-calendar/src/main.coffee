@@ -19,6 +19,10 @@ class AbstractCalendarView extends Backbone.View
     @parent.$el.trigger event, args
     @
 
+  remove: ->
+    @parent = null
+    super
+
 class CalendarView extends Backbone.View
 
   @VIEW_DAY = 1
@@ -163,7 +167,7 @@ class CalendarView extends Backbone.View
     @$el.html ''
     @$el.data 'Calendar', null
     @$el = null
-
+    @
 
 $ ->
 
