@@ -7,11 +7,11 @@ CalendarException = (@message, @code = 10 ) ->
   @
 
 class AbstractCalendarView extends Backbone.View
-  parent: null
+#   parent: null
 
   initialize: (options)->
     @parent = options['parent'] || @
-#     @parent.collection.on 'sync', ()=> @collectionSynchronized()
+#     @parent.collection.on 'reset', ()=> @collectionSynchronized
 
   notify: (event)->
     args = Array.prototype.slice.call(arguments, 1)
@@ -29,6 +29,7 @@ class AbstractCalendarView extends Backbone.View
     @hideLoading()
     if @parent.collection.isEmpty()
       return
+    @parent.options.currentView.renderEvents()
 
 
   showLoadingProgress: ->
@@ -38,6 +39,7 @@ class AbstractCalendarView extends Backbone.View
     $el.height @$el.height()
 
   hideLoading: ->
+
     $('.loading', @parent.$el).addClass 'hidden'
 
   loadEvents: ->
@@ -56,7 +58,8 @@ class AbstractCalendarView extends Backbone.View
       if not arg
         continue
       queryData["arg#{i++}"] = arg
-    @parent.collection.fetch({reset: true, data: queryData }).then ()=> @collectionSynchronized()
+    successCallback = ()=>@collectionSynchronized()
+    @parent.collection.fetch({reset: true, data: queryData, success: successCallback})#.then ()=> @collectionSynchronized()
 
 class CalendarView extends Backbone.View
 
@@ -89,6 +92,7 @@ class CalendarView extends Backbone.View
       ajaxDateFormat: 'YYYY-MM-DD'
       localStorage: false
       timeFormat: 'hh' # 'hh a' with am/pm
+      currentView: null
     }
 
   initialize: (options)->
@@ -148,9 +152,12 @@ class CalendarView extends Backbone.View
         return throw CalendarException "Invalid date", 69
 
     switch @options.viewType
-      when CalendarView.VIEW_DAY then @options.dayView.refresh moment(@moment)
-      when CalendarView.VIEW_WEEK then @options.weekView.refresh moment(@moment)
-      when CalendarView.VIEW_MONTH then @options.monthView.refresh moment(@moment)
+      when CalendarView.VIEW_DAY
+        @options.currentView = @options.dayView.refresh moment(@moment)
+      when CalendarView.VIEW_WEEK
+        @options.currentView = @options.weekView.refresh moment(@moment)
+      when CalendarView.VIEW_MONTH
+        @options.currentView = @options.monthView.refresh moment(@moment)
       else return throw CalendarException 'Not supported view type', 34
     @header.activateButton @options.viewType
     @$el

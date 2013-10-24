@@ -1,5 +1,5 @@
 <?php
-sleep(5);
+sleep(mt_rand(1,8));
 function generate_event($date, $times=1) {
     $event= array(
             'id' => $date->getTimestamp(),
@@ -19,6 +19,7 @@ $data = array();
 if (isset($_REQUEST['startDay']) && isset($_REQUEST['endDay'])) {
     $startDate =  DateTime::createFromFormat('Y-m-d', $_REQUEST['startDay']);
     $endDate =  DateTime::createFromFormat('Y-m-d', $_REQUEST['endDay']);
+
     $dayInterval = new DateInterval('P'.mt_rand(1, 15).'D');
     while ($startDate <= $endDate) {
         $data = array_merge($data, generate_event($startDate, mt_rand(1, 40)));

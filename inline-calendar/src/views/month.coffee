@@ -13,20 +13,33 @@ class CalendarMonthView extends AbstractCalendarView
   refresh: (now)->
     @parent.header.setTitle now.format(@parent.options.monthTitleFormat), true
 
-    startDay = moment(now).startOf('month').startOf('week')
-    endDate = moment(startDay).week(startDay.week() + 5).endOf 'week'
-    data = {'startDay': startDay, 'endDate': endDate, 'now': now}
+    @startDay = moment(now).startOf('month').startOf('week')
+    @endDate = moment(@startDay).week(@startDay.week() + 5).endOf 'week'
+    data = {
+      'startDay': moment(@startDay),
+      'endDate': moment(@endDate),
+      'now': now
+    }
 
     if @parent.options.miniMode
       @$el.html @templateMini(data)
     else
       @$el.html @template(data)
 
-    @loadEvents startDay, endDate
+    @loadEvents @startDay, @endDate
     now = null
     startDay = null
     endDate = null
     @
+
+  renderEvents: ->
+    events = @parent.collection.groupBy '_date'
+
+    while @startDay <= @endDate
+      dayEvents = events[@startDay.format('YYYY-MM-DD')] || []
+      @startDay.add 'd', 1
+      if ! dayEvents.length
+        continue
 
   _view_day_event_handler: (e)->
     e.preventDefault()

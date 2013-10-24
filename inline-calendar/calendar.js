@@ -312,8 +312,6 @@
       return _ref;
     }
 
-    AbstractCalendarView.prototype.parent = null;
-
     AbstractCalendarView.prototype.initialize = function(options) {
       return this.parent = options['parent'] || this;
     };
@@ -334,8 +332,9 @@
     AbstractCalendarView.prototype.collectionSynchronized = function() {
       this.hideLoading();
       if (this.parent.collection.isEmpty()) {
-
+        return;
       }
+      return this.parent.options.currentView.renderEvents();
     };
 
     AbstractCalendarView.prototype.showLoadingProgress = function() {
@@ -351,7 +350,7 @@
     };
 
     AbstractCalendarView.prototype.loadEvents = function() {
-      var arg, args, i, queryData, _i, _len,
+      var arg, args, i, queryData, successCallback, _i, _len,
         _this = this;
       this.showLoadingProgress();
       args = arguments;
@@ -372,11 +371,13 @@
         }
         queryData["arg" + (i++)] = arg;
       }
+      successCallback = function() {
+        return _this.collectionSynchronized();
+      };
       return this.parent.collection.fetch({
         reset: true,
-        data: queryData
-      }).then(function() {
-        return _this.collectionSynchronized();
+        data: queryData,
+        success: successCallback
       });
     };
 
@@ -418,7 +419,8 @@
         dayTitleFormat: 'dddd Do MMMM YYYY',
         ajaxDateFormat: 'YYYY-MM-DD',
         localStorage: false,
-        timeFormat: 'hh'
+        timeFormat: 'hh',
+        currentView: null
       };
     };
 
@@ -488,13 +490,13 @@
       }
       switch (this.options.viewType) {
         case CalendarView.VIEW_DAY:
-          this.options.dayView.refresh(moment(this.moment));
+          this.options.currentView = this.options.dayView.refresh(moment(this.moment));
           break;
         case CalendarView.VIEW_WEEK:
-          this.options.weekView.refresh(moment(this.moment));
+          this.options.currentView = this.options.weekView.refresh(moment(this.moment));
           break;
         case CalendarView.VIEW_MONTH:
-          this.options.monthView.refresh(moment(this.moment));
+          this.options.currentView = this.options.monthView.refresh(moment(this.moment));
           break;
         default:
           throw CalendarException('Not supported view type', 34);
@@ -775,11 +777,11 @@
     CalendarMonthView.prototype.refresh = function(now) {
       var data, endDate, startDay;
       this.parent.header.setTitle(now.format(this.parent.options.monthTitleFormat), true);
-      startDay = moment(now).startOf('month').startOf('week');
-      endDate = moment(startDay).week(startDay.week() + 5).endOf('week');
+      this.startDay = moment(now).startOf('month').startOf('week');
+      this.endDate = moment(this.startDay).week(this.startDay.week() + 5).endOf('week');
       data = {
-        'startDay': startDay,
-        'endDate': endDate,
+        'startDay': moment(this.startDay),
+        'endDate': moment(this.endDate),
         'now': now
       };
       if (this.parent.options.miniMode) {
@@ -787,11 +789,27 @@
       } else {
         this.$el.html(this.template(data));
       }
-      this.loadEvents(startDay, endDate);
+      this.loadEvents(this.startDay, this.endDate);
       now = null;
       startDay = null;
       endDate = null;
       return this;
+    };
+
+    CalendarMonthView.prototype.renderEvents = function() {
+      var dayEvents, events, _results;
+      events = this.parent.collection.groupBy('_date');
+      _results = [];
+      while (this.startDay <= this.endDate) {
+        dayEvents = events[this.startDay.format('YYYY-MM-DD')] || [];
+        this.startDay.add('d', 1);
+        if (!dayEvents.length) {
+          continue;
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
     };
 
     CalendarMonthView.prototype._view_day_event_handler = function(e) {
@@ -893,7 +911,8 @@
     };
 
     CalendarDayEvent.prototype.initialize = function() {
-      return this.set('event_date', moment(this.get('event_date')));
+      this.set('event_date', moment(this.get('event_date')));
+      return this.set('_date', this.get('event_date').format('YYYY-MM-DD'));
     };
 
     return CalendarDayEvent;
@@ -924,7 +943,6 @@
         this.xhr.abort();
       }
       this.xhr = CalendarDayEventsCollection.__super__.fetch.apply(this, arguments);
-      console.log(this.xhr);
       this.xhr.done(function() {
         return _this.xhr = null;
       });

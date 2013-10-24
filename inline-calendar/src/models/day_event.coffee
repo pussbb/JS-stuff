@@ -4,6 +4,7 @@ class CalendarDayEvent extends Backbone.Model
 
   initialize: ->
     @set 'event_date', moment(@get('event_date'))
+    @set '_date', @get('event_date').format('YYYY-MM-DD')
 
 class CalendarDayEventsCollection extends Backbone.Collection
   model: CalendarDayEvent
@@ -15,7 +16,6 @@ class CalendarDayEventsCollection extends Backbone.Collection
   fetch: ->
     @xhr.abort() if @xhr
     @xhr = super
-    console.log @xhr
     @xhr.done ()=> @xhr = null
     return @xhr
 
