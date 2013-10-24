@@ -9,6 +9,9 @@
   <div class="clalendar-js">\
     <div class="header">\
     </div>\
+    <div class="loading hidden">\
+        Loading...\
+    </div>\
     <div class="calendar-container">\
     </div>\
   </div>\
@@ -328,6 +331,55 @@
       return AbstractCalendarView.__super__.remove.apply(this, arguments);
     };
 
+    AbstractCalendarView.prototype.collectionSynchronized = function() {
+      this.hideLoading();
+      if (this.parent.collection.isEmpty()) {
+
+      }
+    };
+
+    AbstractCalendarView.prototype.showLoadingProgress = function() {
+      var $el;
+      $el = $('.loading', this.parent.$el);
+      $el.removeClass('hidden');
+      $el.width(this.$el.width());
+      return $el.height(this.$el.height());
+    };
+
+    AbstractCalendarView.prototype.hideLoading = function() {
+      return $('.loading', this.parent.$el).addClass('hidden');
+    };
+
+    AbstractCalendarView.prototype.loadEvents = function() {
+      var arg, args, i, queryData, _i, _len,
+        _this = this;
+      this.showLoadingProgress();
+      args = arguments;
+      queryData = {};
+      if (args[0] && _.isObject(args[0]) && moment.isMoment(args[0])) {
+        queryData['startDay'] = args[0].format(this.parent.options.ajaxDateFormat);
+        delete args[0];
+      }
+      if (args[1] && _.isObject(args[1]) && moment.isMoment(args[1])) {
+        queryData['endDay'] = args[1].format(this.parent.options.ajaxDateFormat);
+        delete args[1];
+      }
+      i = 1;
+      for (_i = 0, _len = args.length; _i < _len; _i++) {
+        arg = args[_i];
+        if (!arg) {
+          continue;
+        }
+        queryData["arg" + (i++)] = arg;
+      }
+      return this.parent.collection.fetch({
+        reset: true,
+        data: queryData
+      }).then(function() {
+        return _this.collectionSynchronized();
+      });
+    };
+
     return AbstractCalendarView;
 
   })(Backbone.View);
@@ -357,13 +409,15 @@
         dayView: null,
         weekView: null,
         monthView: null,
-        dayEventsCollectionBaseURL: null,
+        dayEventsCollectionBaseURL: './calendar.php',
         dayEventsCollection: null,
         lang: 'ru',
         monthTitleFormat: 'MMMM YYYY',
         weekTitleFormat: 'MMMM gggg',
         dayInWeekFormat: 'dd. DD MMMM',
         dayTitleFormat: 'dddd Do MMMM YYYY',
+        ajaxDateFormat: 'YYYY-MM-DD',
+        localStorage: false,
         timeFormat: 'hh'
       };
     };
@@ -570,6 +624,7 @@
     CalendarDayView.prototype.refresh = function(now) {
       now.startOf('day');
       this.parent.header.setTitle(now.format(this.parent.options.dayTitleFormat));
+      this.loadEvents(now);
       this.$el.html(this.template({
         'now': now,
         'timeFormat': this.parent.options.timeFormat
@@ -732,6 +787,7 @@
       } else {
         this.$el.html(this.template(data));
       }
+      this.loadEvents(startDay, endDate);
       now = null;
       startDay = null;
       endDate = null;
@@ -836,6 +892,10 @@
       return "" + CalendarDayEventsCollection.baseURL + "/" + this.id;
     };
 
+    CalendarDayEvent.prototype.initialize = function() {
+      return this.set('event_date', moment(this.get('event_date')));
+    };
+
     return CalendarDayEvent;
 
   })(Backbone.Model);
@@ -852,8 +912,23 @@
 
     CalendarDayEventsCollection.baseURL = null;
 
+    CalendarDayEventsCollection.prototype.xhr = null;
+
     CalendarDayEventsCollection.prototype.url = function() {
       return "" + CalendarDayEventsCollection.baseURL;
+    };
+
+    CalendarDayEventsCollection.prototype.fetch = function() {
+      var _this = this;
+      if (this.xhr) {
+        this.xhr.abort();
+      }
+      this.xhr = CalendarDayEventsCollection.__super__.fetch.apply(this, arguments);
+      console.log(this.xhr);
+      this.xhr.done(function() {
+        return _this.xhr = null;
+      });
+      return this.xhr;
     };
 
     return CalendarDayEventsCollection;

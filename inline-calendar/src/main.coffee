@@ -8,8 +8,10 @@ CalendarException = (@message, @code = 10 ) ->
 
 class AbstractCalendarView extends Backbone.View
   parent: null
+
   initialize: (options)->
     @parent = options['parent'] || @
+#     @parent.collection.on 'sync', ()=> @collectionSynchronized()
 
   notify: (event)->
     args = Array.prototype.slice.call(arguments, 1)
@@ -22,6 +24,39 @@ class AbstractCalendarView extends Backbone.View
   remove: ->
     @parent = null
     super
+
+  collectionSynchronized: ->
+    @hideLoading()
+    if @parent.collection.isEmpty()
+      return
+
+
+  showLoadingProgress: ->
+    $el = $('.loading', @parent.$el)
+    $el.removeClass 'hidden'
+    $el.width @$el.width()
+    $el.height @$el.height()
+
+  hideLoading: ->
+    $('.loading', @parent.$el).addClass 'hidden'
+
+  loadEvents: ->
+    @showLoadingProgress()
+    args = arguments
+    queryData = {}
+    if args[0] and _.isObject(args[0]) and moment.isMoment(args[0])
+      queryData['startDay'] = args[0].format @parent.options.ajaxDateFormat
+      delete args[0]
+    if args[1] and _.isObject(args[1]) and moment.isMoment(args[1])
+      queryData['endDay'] = args[1].format @parent.options.ajaxDateFormat
+      delete args[1]
+
+    i = 1
+    for arg in args
+      if not arg
+        continue
+      queryData["arg#{i++}"] = arg
+    @parent.collection.fetch({reset: true, data: queryData }).then ()=> @collectionSynchronized()
 
 class CalendarView extends Backbone.View
 
@@ -44,13 +79,15 @@ class CalendarView extends Backbone.View
       dayView: null
       weekView: null
       monthView: null
-      dayEventsCollectionBaseURL: null
+      dayEventsCollectionBaseURL: './calendar.php'
       dayEventsCollection: null
       lang: 'ru'
       monthTitleFormat: 'MMMM YYYY'
       weekTitleFormat: 'MMMM gggg'
       dayInWeekFormat: 'dd. DD MMMM'
       dayTitleFormat: 'dddd Do MMMM YYYY'
+      ajaxDateFormat: 'YYYY-MM-DD'
+      localStorage: false
       timeFormat: 'hh' # 'hh a' with am/pm
     }
 

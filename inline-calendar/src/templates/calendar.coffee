@@ -4,6 +4,9 @@ calendarTemplate =  _.template '
   <div class="clalendar-js">
     <div class="header">
     </div>
+    <div class="loading hidden">
+        Loading...
+    </div>
     <div class="calendar-container">
     </div>
   </div>
