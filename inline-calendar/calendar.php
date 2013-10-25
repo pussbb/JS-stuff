@@ -1,14 +1,29 @@
 <?php
-sleep(mt_rand(1,8));
+sleep(mt_rand(0,3));
 function generate_event($date, $times=1) {
-    $event= array(
-            'id' => $date->getTimestamp(),
-            'name' => 'some event '.$date->getTimestamp(),
-            'event_date' => $date->format('Y-m-d H:i:s')
+    $events_names = array(
+        'some event',
+        'lanch with smb',
+        'meeting with smb',
+        'appointment',
+        'dinner with',
+        'meet smb',
+        'release day',
     );
+
     $result = array();
+    $names_length = count($events_names)-1;
+
     for( $i = 0; $i <= $times; $i++) {
-        $event['id'] = $event['id'] + 1;
+        $index = $i > 0 && $i < $names_length
+            ? $i
+            : mt_rand(0, $names_length);
+
+        $event= array(
+            'id' => $date->getTimestamp()+1,
+            'name' => $events_names[$index],
+            'event_date' => $date->format('Y-m-d H:i:s')
+        );
         $result[] = $event;
     }
     return $result;
@@ -21,6 +36,8 @@ if (isset($_REQUEST['startDay']) && isset($_REQUEST['endDay'])) {
     $endDate =  DateTime::createFromFormat('Y-m-d', $_REQUEST['endDay']);
 
     $dayInterval = new DateInterval('P'.mt_rand(1, 15).'D');
+    if ( $endDate->diff($startDate)->days == 6 )
+        $dayInterval = new DateInterval('P'.mt_rand(1, 3).'D');
     while ($startDate <= $endDate) {
         $data = array_merge($data, generate_event($startDate, mt_rand(1, 40)));
         $startDate->add($dayInterval);
@@ -28,7 +45,7 @@ if (isset($_REQUEST['startDay']) && isset($_REQUEST['endDay'])) {
 }
 elseif (isset($_REQUEST['startDay']) && ! isset($_REQUEST['endDay'])) {
     $startDate =  DateTime::createFromFormat('Y-m-d', $_REQUEST['startDay']);
-    $data = generate_event($startDate, mt_rand(1, 40));
+    $data = generate_event($startDate, mt_rand(8, 40));
 }
 
 

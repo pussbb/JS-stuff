@@ -42,9 +42,11 @@ _monthTemplate = '
                             <%= startDay.format("DD") %>
                         </a>
                       </span>
+                      <% if (dateInfo[1]) {%>
                       <span>
                           <b> <%= dateInfo[1] %> </b>
                       </span>
+                      <% } %>
                   </td>
           <% startDay.add("d", 1); %>
           <% i++; %>
@@ -101,3 +103,17 @@ monthTemplate = (data)->
 
 monthTemplateMini = (data)->
   _.template _monthTemplateMini, _.extend(data, {highlightDay:highlightDay})
+
+eventsForDayInMonthTemplate = _.template '
+<div class="month-day-events">
+    <ul class="events">
+        <% _.each(events, function(event) {%>
+            <li>
+              <a href="#">
+                  <%= event.getTitle() %>
+              </a>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+'

@@ -27,8 +27,7 @@ class AbstractCalendarView extends Backbone.View
 
   collectionSynchronized: ->
     @hideLoading()
-    if @parent.collection.isEmpty()
-      return
+    return if @parent.collection.isEmpty()
     @parent.options.currentView.renderEvents()
 
 
@@ -58,8 +57,8 @@ class AbstractCalendarView extends Backbone.View
       if not arg
         continue
       queryData["arg#{i++}"] = arg
-    successCallback = ()=>@collectionSynchronized()
-    @parent.collection.fetch({reset: true, data: queryData, success: successCallback})#.then ()=> @collectionSynchronized()
+    successCallback = () => @collectionSynchronized()
+    @parent.collection.fetch({data: queryData, success: successCallback})#.then ()=> @collectionSynchronized()
 
 class CalendarView extends Backbone.View
 
@@ -82,7 +81,7 @@ class CalendarView extends Backbone.View
       dayView: null
       weekView: null
       monthView: null
-      dayEventsCollectionBaseURL: './calendar.php'
+      dayEventsCollectionBaseURL: null
       dayEventsCollection: null
       lang: 'ru'
       monthTitleFormat: 'MMMM YYYY'
@@ -90,7 +89,6 @@ class CalendarView extends Backbone.View
       dayInWeekFormat: 'dd. DD MMMM'
       dayTitleFormat: 'dddd Do MMMM YYYY'
       ajaxDateFormat: 'YYYY-MM-DD'
-      localStorage: false
       timeFormat: 'hh' # 'hh a' with am/pm
       currentView: null
     }

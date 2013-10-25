@@ -3,8 +3,10 @@ class CalendarDayEvent extends Backbone.Model
   url: () -> "#{CalendarDayEventsCollection.baseURL}/#{@id}"
 
   initialize: ->
-    @set 'event_date', moment(@get('event_date'))
-    @set '_date', @get('event_date').format('YYYY-MM-DD')
+    @set '_date', moment(@get('event_date')).format('YYYY-MM-DD')
+    @
+
+  getTitle: -> @get 'name'
 
 class CalendarDayEventsCollection extends Backbone.Collection
   model: CalendarDayEvent

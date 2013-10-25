@@ -1,10 +1,10 @@
 miniCalendar = null
 calendar = null
 calendars = null
-
+url =  './calendar.php'
 create_calendars = ()->
-  miniCalendar = $('div.mini-calendar').Calendar {miniMode:true}
-  calendar = $('div.calendar').Calendar()
+  miniCalendar = $('div.mini-calendar').Calendar {miniMode:true, dayEventsCollectionBaseURL: url}
+  calendar = $('div.calendar').Calendar {dayEventsCollectionBaseURL:url}
   calendars = $('div.mini-calendar, div.calendar').Calendar()
 
 $ ->

@@ -1,9 +1,7 @@
 
 dayTemplate = _.template '
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped" data-day="<%= now %>">
   <thead>
-    <tr>
-    </tr>
   </thead>
   <tbody>
       <% nextDay = moment(now).add("d", 1); %>
@@ -14,7 +12,7 @@ dayTemplate = _.template '
               <% now.add("h", 1); %>
             </td>
             <td>
-                somthing
+
             </td>
         </tr>
       <% }; %>
@@ -23,4 +21,17 @@ dayTemplate = _.template '
 
   </tfoot>
 </table>
+'
+eventsForDayInDayTemplate = _.template '
+<div class="day-events">
+    <ul class="events">
+        <% _.each(events, function(event) {%>
+            <li>
+              <a href="#">
+                  <%= event.getTitle() %>
+              </a>
+            </li>
+        <% }); %>
+    </ul>
+</div>
 '

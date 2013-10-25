@@ -52,7 +52,7 @@
 
     .expanded-day {
         min-height: 80px;
-        height: 80px;
+        height: 100px;
     }
 
     .day {
@@ -109,5 +109,45 @@
 
     .hidden {
         display: none;
+    }
+
+    .month-day-events {
+        overflow: auto;
+        position: relative;
+        height: 80%;
+
+        ul {
+            margin: 0px;
+            list-style-type: none;
+            padding: 0px;
+        }
+    }
+    .week-day-events {
+        overflow: auto;
+        position: absolute;
+        width: 100px;
+        height: 80%;
+
+        ul {
+            margin: 0px;
+            list-style-type: none;
+            padding: 0px;
+        }
+    }
+    .day-events {
+        overflow: auto;
+        height: 90%;
+        position: absolute;
+        width: 80%;
+
+        ul {
+            margin: 0px;
+            list-style-type: none;
+            padding: 0px;
+
+            li {
+                margin: 15px 0;
+            }
+        }
     }
 }

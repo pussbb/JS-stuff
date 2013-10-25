@@ -40,3 +40,17 @@ _weekTemplate = '
 '
 weekTemplate = (data)->
   _.template _weekTemplate, _.extend(data, {highlightDay:highlightDay, })
+
+eventsForDayInWeekTemplate = _.template '
+<div class="week-day-events">
+    <ul class="events">
+        <% _.each(events, function(event) {%>
+            <li>
+              <a href="#">
+                  <%= event.getTitle() %>
+              </a>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+'
