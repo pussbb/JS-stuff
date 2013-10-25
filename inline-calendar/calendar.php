@@ -13,14 +13,14 @@ function generate_event($date, $times=1) {
 
     $result = array();
     $names_length = count($events_names)-1;
-
+    $id =  $date->getTimestamp();
     for( $i = 0; $i <= $times; $i++) {
         $index = $i > 0 && $i < $names_length
             ? $i
             : mt_rand(0, $names_length);
 
         $event= array(
-            'id' => $date->getTimestamp()+1,
+            'id' => $id+1,
             'name' => $events_names[$index],
             'event_date' => $date->format('Y-m-d H:i:s')
         );
