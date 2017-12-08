@@ -1,0 +1,124 @@
+<html>
+<head>
+
+<style>
+/* The Modal (background) */
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    margin: 15% auto; /* 15% from the top and centered */
+    border: 1px solid #888;
+    position: relative;
+    width: 50%; /* Could be more or less, depending on screen size */
+    -webkit-border-radius: 5px 5px 0px 0px;
+    -moz-border-radius: 5px 5px 0px 0px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.modal-header::before {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.modal-header {
+    background-color: #fefefe;
+    -webkit-border-radius: 5px 5px  0px 0px;
+    -moz-border-radius: 5px 5px  0px 0px;
+    border-radius: 5px 5px  0px 0px;
+    padding: 10px 15px;
+    border-bottom: 1px solid #888;;
+}
+
+
+
+.modal-content p {
+    background-color: #fefefe;
+    padding: 20px;
+    margin: 0px;
+}
+
+.modal-header.modal-error {
+    background-color:#f44336;
+}
+
+/* The Close Button */
+.modal-header .close {
+    color: #aaa;
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    /*left: 95%;*/
+    display: inline-block;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 0px;
+}
+
+.modal-header .close:hover,
+.modal-header .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+</style>
+
+<script>
+
+function showModal(title, text, type) {
+    if (typeof createAndAddElem === 'undefined') {
+        var createAndAddElem = function(html, parent) {
+            parent = parent || document.body;
+            var template = document.createElement('template');
+            template.innerHTML = html;
+            return parent.appendChild(template.content.firstChild);
+        }
+    }
+    var modal = createAndAddElem( '<div id="myModal" class="modal">', document.body  );
+    var modalBody = createAndAddElem( '<div class="modal-content" style="">', modal);
+    var modalHeader = createAndAddElem( '<div class="modal-header '+ (type || '') +'">', modalBody);
+    modalHeader.innerHTML = '<b>' + (title || '') + '</b>';
+    var close = createAndAddElem( '<span class="close">&times;</span>', modalHeader  );
+    createAndAddElem('<p style="border-left-color: #d9534f;">' + text + "</p>", modalBody);
+    close.onclick = function(e) {
+        if (modal && modal.parentNode) {
+            modal.parentNode.removeChild(modal);
+        }
+    };
+    
+}
+
+function showAlert(title, text) {
+    title = title || 'Alert';
+    showModal(title, text, 'modal-alert')
+}
+
+function showError(title, text) {
+    title = title || 'Generic error';
+    showModal(title, text, 'modal-error')
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    showError('ss', 'sss');
+    showAlert('ss', 'sss');
+});
+
+
+
+</script>
+
+</head>
+<body>
+</body>
+</html>
